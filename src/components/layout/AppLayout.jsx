@@ -3,13 +3,16 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
+import Auth from '../../pages/Auth';
 import { useBooklet } from '../../context/BookletContext';
 
 export default function AppLayout() {
-  const { undo, redo, canUndo, canRedo } = useBooklet();
+  const { currentUser, undo, redo } = useBooklet();
 
   // Listen to keyboard shortcuts (Ctrl+Z and Ctrl+Y)
   useEffect(() => {
+    if (!currentUser) return; // Only listen if logged in
+    
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'z') {
         e.preventDefault();
@@ -22,7 +25,12 @@ export default function AppLayout() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo]);
+  }, [undo, redo, currentUser]);
+
+  // If no user is logged in, show the Login/Signup page first
+  if (!currentUser) {
+    return <Auth />;
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">

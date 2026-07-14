@@ -14,6 +14,21 @@ export function BookletProvider({ children }) {
   const [activeBookletId, setActiveBookletId] = useLocalStorage('d228_active_booklet_id_v2', 'corp-alpha-booklet');
   const [theme, setTheme] = useLocalStorage('d228_theme_v2', 'light');
   
+  // Auth state
+  const [users, setUsers] = useLocalStorage('d228_users_v2', [
+    {
+      username: 'admin',
+      password: 'password',
+      name: 'Pramod K Murthy',
+      email: 'admin@d228.org',
+      areaDirectorOf: 'Area 12',
+      division: 'Division A',
+      divisionDirectorName: 'Prashant',
+      district: 'District 228'
+    }
+  ]);
+  const [currentUser, setCurrentUser] = useLocalStorage('d228_current_user_v2', null);
+
   // Booklet Undo/Redo stack state
   const [pastStates, setPastStates] = useState([]);
   const [futureStates, setFutureStates] = useState([]);
@@ -60,6 +75,49 @@ export function BookletProvider({ children }) {
     };
     setActivities(prev => [newAct, ...prev.slice(0, 19)]); // Cap at 20 items
   }, [setActivities]);
+
+  // Auth functions (Bypassed credentials check as requested!)
+  const loginUser = (username, password) => {
+    const mockUser = {
+      username: username || 'admin',
+      password: password || 'password',
+      name: username || 'Pramod K Murthy',
+      email: `${username || 'admin'}@d228.org`,
+      areaDirectorOf: 'Area 12',
+      division: 'Division A',
+      divisionDirectorName: 'Prashant',
+      district: 'District 228'
+    };
+    setCurrentUser(mockUser);
+    showToast(`Welcome, ${mockUser.name}!`, "success");
+    addActivity(`Logged in as ${mockUser.name}`);
+    return { success: true };
+  };
+
+  const registerUser = (userData) => {
+    const mockUser = {
+      username: userData.username || 'admin',
+      password: userData.password || 'password',
+      name: userData.name || 'District Officer',
+      email: userData.email || 'officer@d228.org',
+      areaDirectorOf: userData.areaDirectorOf || 'Area 12',
+      division: userData.division || 'Division A',
+      divisionDirectorName: userData.divisionDirectorName || 'Prashant',
+      district: userData.district || 'District 228'
+    };
+    setCurrentUser(mockUser);
+    showToast(`Welcome, ${mockUser.name}!`, "success");
+    addActivity(`Registered and logged in as ${mockUser.name}`);
+    return { success: true };
+  };
+
+  const logoutUser = () => {
+    if (currentUser) {
+      addActivity(`Logged out from profile: ${currentUser.name}`);
+    }
+    setCurrentUser(null);
+    showToast("Logged out successfully", "info");
+  };
 
   // Push state to undo history
   const pushStateToUndo = useCallback((currentState) => {
@@ -178,7 +236,6 @@ export function BookletProvider({ children }) {
     setBooklets(updatedBooklets);
   };
 
-  // Deep update page helper (with debounce / autosave action logs)
   const updateBookletPage = (pageName, pageData) => {
     if (!activeBookletId) return;
     const targetBooklet = booklets.find(b => b.id === activeBookletId);
@@ -247,6 +304,10 @@ export function BookletProvider({ children }) {
       activeBooklet,
       theme,
       setTheme,
+      currentUser,
+      loginUser,
+      registerUser,
+      logoutUser,
       notifications,
       activities,
       canUndo: pastStates.length > 0,

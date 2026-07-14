@@ -14,6 +14,7 @@ import Page7Tracker from './pages/Page7Tracker';
 import Page8DataSheet from './pages/Page8DataSheet';
 import Settings from './pages/Settings';
 import PrintView from './pages/PrintView';
+import Auth from './pages/Auth';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="booklet/tracker" element={<Page7Tracker />} />
               <Route path="booklet/data-sheet" element={<Page8DataSheet />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="auth" element={<Auth />} />
             </Route>
 
             {/* Standalone Printable View */}

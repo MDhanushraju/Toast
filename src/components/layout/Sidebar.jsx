@@ -5,11 +5,11 @@ import { PAGES } from '../../constants';
 import { 
   FiHome, FiBookOpen, FiFileText, FiCheckSquare, 
   FiCalendar, FiPlay, FiAward, FiList, FiSettings, 
-  FiMenu, FiX, FiPlus, FiChevronDown, FiDatabase 
+  FiMenu, FiX, FiPlus, FiChevronDown, FiDatabase, FiLogOut 
 } from 'react-icons/fi';
 
 export default function Sidebar() {
-  const { booklets, activeBooklet, selectBooklet, createBooklet } = useBooklet();
+  const { booklets, activeBooklet, selectBooklet, createBooklet, currentUser, logoutUser } = useBooklet();
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
@@ -19,6 +19,13 @@ export default function Sidebar() {
     if (title && title.trim() !== '') {
       const newId = createBooklet(title);
       navigate('/booklet/cover');
+    }
+  };
+
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to sign out?")) {
+      logoutUser();
+      navigate('/');
     }
   };
 
@@ -94,7 +101,7 @@ export default function Sidebar() {
               </button>
 
               {showDropdown && (
-                <div className="absolute left-4 right-4 mt-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                <div className="absolute left-4 right-4 mt-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                   {booklets.map(b => (
                     <button
                       key={b.id}
@@ -105,7 +112,7 @@ export default function Sidebar() {
                       className={`w-full text-left p-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors border-b border-slate-100 dark:border-slate-900 last:border-0 ${b.id === activeBooklet.id ? 'bg-brand-blue/5 text-brand-blue font-bold' : 'text-slate-600 dark:text-slate-400'}`}
                     >
                       <div className="truncate">{b.title}</div>
-                      <div className="text-[10px] text-slate-450">{b.createdAt} • {b.completedPercent}% complete</div>
+                      <div className="text-[10px] text-slate-455">{b.createdAt} • {b.completedPercent}% complete</div>
                     </button>
                   ))}
                   <button
@@ -123,7 +130,7 @@ export default function Sidebar() {
           )}
 
           {/* Navigation Links */}
-          <nav className="p-4 space-y-1">
+          <nav className="p-4 space-y-1 flex-1">
             <NavLink
               to="/"
               onClick={() => setIsOpen(false)}
@@ -174,23 +181,59 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        {/* Completion Progress Widget */}
-        {activeBooklet && (
-          <div className="p-4 border-t border-slate-100 dark:border-slate-805">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-405 uppercase tracking-wider">Booklet Progress</span>
+        {/* User Card & Completion Progress Widget */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-805 space-y-4 bg-slate-50/50 dark:bg-slate-950/20">
+          
+          {/* User profile details with Profile Avatar Icon and logout next to it */}
+          {currentUser && (
+            <div className="flex flex-col gap-2.5 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+              <div className="flex items-center gap-3">
+                {/* Profile Icon / Avatar */}
+                <div className="w-8 h-8 rounded-full bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue flex items-center justify-center font-extrabold text-xs shrink-0">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs text-slate-850 dark:text-slate-200 truncate leading-tight">
+                    {currentUser.name}
+                  </div>
+                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-bold truncate">
+                    {currentUser.areaDirectorOf ? `${currentUser.areaDirectorOf} • ` : ''}
+                    {currentUser.division || ''}
+                  </div>
+                </div>
+
+                {/* Logout Button right next to it */}
+                <button
+                  onClick={handleLogout}
+                  title="Sign Out"
+                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors flex-shrink-0"
+                >
+                  <FiLogOut size={14} />
+                </button>
+              </div>
+
+              <div className="text-[8px] text-slate-450 dark:text-slate-500 font-semibold border-t border-slate-100 dark:border-slate-805 pt-1 truncate">
+                {currentUser.district || 'District 228'}
+              </div>
+            </div>
+          )}
+
+          {activeBooklet && (
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[9px] font-bold text-slate-450 dark:text-slate-450 uppercase tracking-wider">Booklet Progress</span>
                 <span className="text-xs font-extrabold text-brand-blue">{activeBooklet.completedPercent}%</span>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-100 dark:bg-slate-950 h-1.5 rounded-full overflow-hidden">
                 <div 
                   className="bg-brand-blue h-full rounded-full transition-all duration-500 ease-out" 
                   style={{ width: `${activeBooklet.completedPercent}%` }}
                 ></div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </aside>
 
       {/* Mobile backdrop */}
