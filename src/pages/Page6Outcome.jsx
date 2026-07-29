@@ -57,31 +57,31 @@ export default function Page6Outcome() {
           <div className="space-y-6">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center no-print">
+            <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3 flex justify-between items-center no-print">
               <div>
-                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
+                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
                   Outcome After Meeting
                 </h2>
-                <p className="text-xs text-slate-405 font-semibold mt-0.5">
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
                   Log satisfaction ratings, count attendees interested, and draft action plans.
                 </p>
               </div>
               <button 
                 onClick={handleClear}
-                className="px-3 py-1 bg-slate-50 dark:bg-slate-950 text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all"
+                className="px-3 py-1 bg-[#faf5ef] dark:bg-slate-900 text-[#772432] dark:text-rose-200 hover:bg-[#772432] hover:text-white border border-[#e8ddd0] dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
               >
                 Clear Page
               </button>
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block pb-2 border-b-2 border-slate-900">
-              <h2 className="text-xl font-bold">Outcome After Meeting</h2>
+            <div className="hidden print:block pb-2 border-b-2 border-[#772432]">
+              <h2 className="text-xl font-bold text-[#772432]">Outcome After Meeting</h2>
               <p className="text-xs text-slate-650">District 228 Session Evaluation & Outcomes</p>
             </div>
 
             {/* Metrics cards inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white dark:bg-slate-950/20 p-4 border border-slate-200 dark:border-slate-850 rounded-2xl shadow-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white dark:bg-[#0c1421] p-4 border border-[#e8ddd0] dark:border-slate-800 rounded-2xl shadow-sm">
               <FormInput
                 label="Guest Count"
                 id="guestCount"
@@ -110,10 +110,10 @@ export default function Page6Outcome() {
                 min="0"
               />
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest">
+                <label className="block text-[10px] font-extrabold text-[#772432] dark:text-[#f2a900] uppercase tracking-widest">
                   Overall rating (1-10)
                 </label>
-                <div className="flex items-center gap-3 h-[38px] px-2.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-3 h-[38px] px-2.5 bg-[#faf5ef] dark:bg-slate-950 rounded-xl border border-[#e8ddd0] dark:border-slate-800">
                   <input
                     type="range"
                     id="overallRating"
@@ -121,9 +121,9 @@ export default function Page6Outcome() {
                     max="10"
                     value={pageData.overallRating || 5}
                     onChange={(e) => handleNumericChange('overallRating', e.target.value)}
-                    className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-blue focus:outline-none"
+                    className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#772432] focus:outline-none"
                   />
-                  <span className="font-outfit font-extrabold text-brand-blue text-xs w-5 text-right shrink-0">
+                  <span className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs w-5 text-right shrink-0">
                     {pageData.overallRating}/10
                   </span>
                 </div>

@@ -1,71 +1,79 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import Button from './ui/Button';
+import { FiChevronLeft, FiChevronRight, FiHome } from 'react-icons/fi';
 
-const PAGES = [
-  '/booklet/cover',
-  '/booklet/quick-reference',
-  '/booklet/before-meeting',
-  '/booklet/arrangements',
-  '/booklet/during-meeting',
-  '/booklet/outcome',
-  '/booklet/tracker',
-  '/booklet/data-sheet'
+const SEGMENTS = [
+  { path: '/booklet/segment-1', label: 'Before Meeting' },
+  { path: '/booklet/segment-2', label: 'During Meeting' },
+  { path: '/booklet/segment-3', label: 'After Meeting' }
 ];
 
 export default function PageNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const currentIndex = PAGES.indexOf(location.pathname);
+  const currentIndex = SEGMENTS.findIndex(s => s.path === location.pathname);
+  const safeIndex = currentIndex !== -1 ? currentIndex : 0;
 
-  if (currentIndex === -1) return null;
-
-  const prevPage = PAGES[currentIndex - 1];
-  const nextPage = PAGES[currentIndex + 1];
+  const prevSegment = SEGMENTS[safeIndex - 1];
+  const nextSegment = SEGMENTS[safeIndex + 1];
 
   return (
-    <div className="flex items-center justify-between mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 no-print">
-      <div>
-        {prevPage ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate(prevPage)}
-            className="hover:-translate-x-0.5"
-          >
-            <FiChevronLeft size={16} className="mr-1" /> Previous Page
-          </Button>
-        ) : (
-          <div />
-        )}
-      </div>
+    <div className="mt-8 pt-4 border-t border-[#e8ddd0] dark:border-slate-800 no-print font-sans">
+      <div className="flex items-center justify-between gap-4 p-3 bg-white dark:bg-[#0c1421] border border-[#e8ddd0] dark:border-slate-800 rounded-2xl shadow-xs">
+        
+        {/* Previous Button */}
+        <div>
+          {prevSegment ? (
+            <button
+              onClick={() => navigate(prevSegment.path)}
+              className="flex items-center gap-2 bg-[#006094] hover:bg-[#003a5c] text-white font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer border border-[#003a5c]"
+            >
+              <FiChevronLeft size={18} />
+              <span>Previous ({prevSegment.label})</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
+            >
+              <FiHome size={18} />
+              <span>Home Dashboard</span>
+            </button>
+          )}
+        </div>
 
-      <div className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-        Page {currentIndex + 1} of 8
-      </div>
+        {/* Step Indicator Badge */}
+        <div className="hidden sm:flex flex-col items-center">
+          <span className="text-[10px] font-extrabold text-[#006094] dark:text-sky-300 uppercase tracking-widest font-montserrat">
+            Segment Navigation
+          </span>
+          <span className="text-xs font-black text-[#781327] dark:text-rose-300 font-montserrat">
+            Segment {safeIndex + 1} of 3
+          </span>
+        </div>
 
-      <div>
-        {nextPage ? (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate(nextPage)}
-            className="hover:translate-x-0.5"
-          >
-            Next Page <FiChevronRight size={16} className="ml-1" />
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="bg-green-600 hover:bg-green-700 focus:ring-green-550 border-0"
-          >
-            Dashboard
-          </Button>
-        )}
+        {/* Next Button */}
+        <div>
+          {nextSegment ? (
+            <button
+              onClick={() => navigate(nextSegment.path)}
+              className="flex items-center gap-2 bg-[#781327] hover:bg-[#580d1b] text-white font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer border border-[#580d1b]"
+            >
+              <span>Next ({nextSegment.label})</span>
+              <FiChevronRight size={18} />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 bg-[#006094] hover:bg-[#003a5c] text-white font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer border border-[#003a5c]"
+            >
+              <span>Finish & View Dashboard</span>
+              <FiHome size={18} />
+            </button>
+          )}
+        </div>
+
       </div>
     </div>
   );

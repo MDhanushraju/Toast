@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { createDefaultBooklet, getInitialBooklets } from '../data/defaultBooklet';
+import { createDefaultBooklet, createCleanBooklet, getInitialBooklets } from '../data/defaultBooklet';
 import { calculateBookletProgress } from '../utils/progress';
 import { useToast } from './ToastContext';
 
@@ -10,35 +10,35 @@ export function BookletProvider({ children }) {
   const { showToast } = useToast();
   
   // Local storage state keys
-  const [booklets, setBooklets] = useLocalStorage('d228_booklets_v2', getInitialBooklets());
-  const [activeBookletId, setActiveBookletId] = useLocalStorage('d228_active_booklet_id_v2', 'corp-alpha-booklet');
-  const [theme, setTheme] = useLocalStorage('d228_theme_v2', 'light');
+  const [booklets, setBooklets] = useLocalStorage('d227_booklets_v3', getInitialBooklets());
+  const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v3', 'corp-alpha-booklet');
+  const [theme, setTheme] = useLocalStorage('d227_theme_v3', 'light');
   
   // Auth state
-  const [users, setUsers] = useLocalStorage('d228_users_v2', [
+  const [users, setUsers] = useLocalStorage('d227_users_v3', [
     {
       username: 'admin',
       password: 'password',
       name: 'Pramod K Murthy',
-      email: 'admin@d228.org',
+      email: 'admin@d227.org',
       areaDirectorOf: 'Area 12',
       division: 'Division A',
       divisionDirectorName: 'Prashant',
-      district: 'District 228'
+      district: 'District 227'
     }
   ]);
-  const [currentUser, setCurrentUser] = useLocalStorage('d228_current_user_v2', null);
+  const [currentUser, setCurrentUser] = useLocalStorage('d227_current_user_v3', null);
 
   // Booklet Undo/Redo stack state
   const [pastStates, setPastStates] = useState([]);
   const [futureStates, setFutureStates] = useState([]);
 
   // Notifications and Recent Activity state
-  const [notifications, setNotifications] = useLocalStorage('d228_notifications', [
+  const [notifications, setNotifications] = useLocalStorage('d227_notifications', [
     { id: 'not-1', message: 'Corporation Alpha Booklet initialized', time: '10 mins ago', read: false },
-    { id: 'not-2', message: 'Welcome to District 228 Booklet App', time: '1 hour ago', read: true }
+    { id: 'not-2', message: 'Welcome to District 227 Booklet App', time: '1 hour ago', read: true }
   ]);
-  const [activities, setActivities] = useLocalStorage('d228_activities', [
+  const [activities, setActivities] = useLocalStorage('d227_activities', [
     { id: 'act-1', message: 'Updated Cover Page settings', time: 'Just now' },
     { id: 'act-2', message: 'Signed off Page 3 approvals', time: 'Yesterday' }
   ]);
@@ -82,11 +82,11 @@ export function BookletProvider({ children }) {
       username: username || 'admin',
       password: password || 'password',
       name: username || 'Pramod K Murthy',
-      email: `${username || 'admin'}@d228.org`,
+      email: `${username || 'admin'}@d227.org`,
       areaDirectorOf: 'Area 12',
       division: 'Division A',
       divisionDirectorName: 'Prashant',
-      district: 'District 228'
+      district: 'District 227'
     };
     setCurrentUser(mockUser);
     showToast(`Welcome, ${mockUser.name}!`, "success");
@@ -99,11 +99,11 @@ export function BookletProvider({ children }) {
       username: userData.username || 'admin',
       password: userData.password || 'password',
       name: userData.name || 'District Officer',
-      email: userData.email || 'officer@d228.org',
+      email: userData.email || 'officer@d227.org',
       areaDirectorOf: userData.areaDirectorOf || 'Area 12',
       division: userData.division || 'Division A',
       divisionDirectorName: userData.divisionDirectorName || 'Prashant',
-      district: userData.district || 'District 228'
+      district: userData.district || 'District 227'
     };
     setCurrentUser(mockUser);
     showToast(`Welcome, ${mockUser.name}!`, "success");
@@ -160,8 +160,8 @@ export function BookletProvider({ children }) {
 
   const createBooklet = (title) => {
     pushStateToUndo(booklets);
-    const newBooklet = createDefaultBooklet(null, title);
-    setBooklets([newBooklet, ...booklets]);
+    const newBooklet = createCleanBooklet(null, title);
+    setBooklets(prev => [newBooklet, ...prev]);
     setActiveBookletId(newBooklet.id);
     addNotification(`Created new booklet "${title}"`);
     addActivity(`Created booklet "${title}"`);
@@ -180,7 +180,7 @@ export function BookletProvider({ children }) {
       createdAt: new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString().split('T')[0]
     };
-    setBooklets([duplicated, ...booklets]);
+    setBooklets(prev => [duplicated, ...prev]);
     setActiveBookletId(duplicated.id);
     addNotification(`Duplicated booklet "${source.title}"`);
     addActivity(`Duplicated booklet "${source.title}"`);
@@ -197,7 +197,7 @@ export function BookletProvider({ children }) {
       if (remaining.length > 0) {
         setActiveBookletId(remaining[0].id);
       } else {
-        const fallback = createDefaultBooklet(null, "District Demo Booklet");
+        const fallback = createDefaultBooklet(null, "District Meeting Booklet");
         setBooklets([fallback]);
         setActiveBookletId(fallback.id);
       }
@@ -220,36 +220,45 @@ export function BookletProvider({ children }) {
     showToast("Active booklet reset to template.");
   };
 
-  const updateBooklet = (id, updatedData) => {
-    const updatedBooklets = booklets.map(b => {
-      if (b.id === id) {
-        const merged = { 
-          ...b, 
-          ...updatedData, 
-          updatedAt: new Date().toISOString().split('T')[0] 
-        };
-        merged.completedPercent = calculateBookletProgress(merged);
-        return merged;
-      }
-      return b;
+  // Functional updateBooklet ensuring atomic state updates
+  const updateBooklet = useCallback((id, updatedData) => {
+    setBooklets(prevBooklets => {
+      return prevBooklets.map(b => {
+        if (b.id === id) {
+          const merged = { 
+            ...b, 
+            ...updatedData, 
+            updatedAt: new Date().toISOString().split('T')[0] 
+          };
+          merged.completedPercent = calculateBookletProgress(merged);
+          return merged;
+        }
+        return b;
+      });
     });
-    setBooklets(updatedBooklets);
-  };
+  }, [setBooklets]);
 
-  const updateBookletPage = (pageName, pageData) => {
+  const updateBookletPage = useCallback((pageName, pageData) => {
     if (!activeBookletId) return;
-    const targetBooklet = booklets.find(b => b.id === activeBookletId);
-    if (!targetBooklet) return;
-
-    const updatedPageObj = {
-      ...targetBooklet[pageName],
-      ...pageData
-    };
-
-    updateBooklet(activeBookletId, {
-      [pageName]: updatedPageObj
+    setBooklets(prevBooklets => {
+      return prevBooklets.map(b => {
+        if (b.id === activeBookletId) {
+          const updatedPageObj = {
+            ...b[pageName],
+            ...pageData
+          };
+          const merged = {
+            ...b,
+            [pageName]: updatedPageObj,
+            updatedAt: new Date().toISOString().split('T')[0]
+          };
+          merged.completedPercent = calculateBookletProgress(merged);
+          return merged;
+        }
+        return b;
+      });
     });
-  };
+  }, [activeBookletId, setBooklets]);
 
   const resetAllData = () => {
     pushStateToUndo(booklets);
@@ -260,73 +269,71 @@ export function BookletProvider({ children }) {
     showToast("All data reset to seeds.");
   };
 
-  const clearNotifications = () => {
-    setNotifications([]);
-  };
-
+  const clearNotifications = () => setNotifications([]);
   const markNotificationsAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
-  const exportData = () => {
+  // Export all booklets data to a JSON file
+  const exportBookletsJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(booklets, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `district_228_demo_booklets_${new Date().toISOString().split('T')[0]}.json`);
+    downloadAnchor.setAttribute("download", `District227_Booklets_Backup_${new Date().toISOString().split('T')[0]}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast("JSON booklet configurations exported!");
+    showToast("📥 Booklet data exported to JSON file!");
   };
 
-  const importData = (jsonString) => {
-    pushStateToUndo(booklets);
+  // Import booklets data from a JSON file
+  const importBookletsJSON = (importedData) => {
     try {
-      const parsed = JSON.parse(jsonString);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].id) {
-        setBooklets(parsed);
-        setActiveBookletId(parsed[0].id);
-        addNotification("Imported booklets config file");
-        addActivity("Imported booklets config file");
-        showToast("JSON booklets imported successfully!");
-        return { success: true };
+      if (Array.isArray(importedData) && importedData.length > 0) {
+        setBooklets(importedData);
+        setActiveBookletId(importedData[0].id);
+        showToast("📤 Sample booklet dataset successfully loaded!");
+      } else {
+        showToast("Invalid JSON file format", "error");
       }
-      return { success: false, error: "Invalid backup layout. Expected booklet arrays." };
-    } catch (e) {
-      return { success: false, error: e.message };
+    } catch (err) {
+      showToast("Failed to parse imported JSON file", "error");
     }
   };
 
   return (
-    <BookletContext.Provider value={{
-      booklets,
-      activeBookletId,
-      activeBooklet,
-      theme,
-      setTheme,
-      currentUser,
-      loginUser,
-      registerUser,
-      logoutUser,
-      notifications,
-      activities,
-      canUndo: pastStates.length > 0,
-      canRedo: futureStates.length > 0,
-      undo,
-      redo,
-      selectBooklet,
-      createBooklet,
-      duplicateBooklet,
-      deleteBooklet,
-      resetBooklet,
-      updateBooklet,
-      updateBookletPage,
-      resetAllData,
-      clearNotifications,
-      markNotificationsAsRead,
-      exportData,
-      importData
-    }}>
+    <BookletContext.Provider
+      value={{
+        booklets,
+        activeBooklet,
+        activeBookletId,
+        selectBooklet,
+        createBooklet,
+        duplicateBooklet,
+        deleteBooklet,
+        resetBooklet,
+        updateBooklet,
+        updateBookletPage,
+        resetAllData,
+        exportBookletsJSON,
+        importBookletsJSON,
+        theme,
+        setTheme,
+        currentUser,
+        loginUser,
+        registerUser,
+        logoutUser,
+        canUndo: pastStates.length > 0,
+        canRedo: futureStates.length > 0,
+        undo,
+        redo,
+        notifications,
+        addNotification,
+        clearNotifications,
+        markNotificationsAsRead,
+        activities
+      }}
+    >
       {children}
     </BookletContext.Provider>
   );

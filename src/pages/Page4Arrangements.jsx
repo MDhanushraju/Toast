@@ -90,12 +90,12 @@ export default function Page4Arrangements() {
           <div className="space-y-6">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center no-print">
+            <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3 flex justify-between items-center no-print">
               <div>
-                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
+                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
                   Meeting Arrangements
                 </h2>
-                <p className="text-xs text-slate-405 font-semibold mt-0.5">
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
                   Confirm material owners, review venue specifications, and upload necessary sheets.
                 </p>
               </div>
@@ -110,28 +110,28 @@ export default function Page4Arrangements() {
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block pb-2 border-b-2 border-slate-900">
-              <h2 className="text-xl font-bold">Meeting Arrangements</h2>
+            <div className="hidden print:block pb-2 border-b-2 border-[#772432]">
+              <h2 className="text-xl font-bold text-[#772432]">Meeting Arrangements</h2>
               <p className="text-xs text-slate-650">District 228 Materials Checklist & Arrangements</p>
             </div>
 
             {/* Logistics Grid Table */}
-            <div className="overflow-x-auto border border-slate-205 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-950/20 shadow-sm">
+            <div className="overflow-x-auto border border-[#e8ddd0] dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] shadow-sm">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-850">
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-1/3">Material Item</th>
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-12 text-center">Ready</th>
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-28">Owner</th>
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-24">Priority</th>
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-1/4">Notes / Details</th>
-                    <th className="p-3 font-bold text-slate-700 dark:text-slate-300 w-10 text-center no-print">Action</th>
+                  <tr className="bg-[#772432] text-white border-b border-[#5e1c27]">
+                    <th className="p-3 font-extrabold w-1/3">Material Item</th>
+                    <th className="p-3 font-extrabold w-12 text-center">Ready</th>
+                    <th className="p-3 font-extrabold w-28">Owner</th>
+                    <th className="p-3 font-extrabold w-24">Priority</th>
+                    <th className="p-3 font-extrabold w-1/4">Notes / Details</th>
+                    <th className="p-3 font-extrabold w-10 text-center no-print">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageData.rows.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="p-6 text-center text-slate-400 font-semibold bg-slate-50/50 dark:bg-slate-950/20">
+                      <td colSpan="6" className="p-6 text-center text-slate-400 font-semibold bg-[#faf5ef]/50 dark:bg-slate-900/20">
                         No materials rows configured. Click "Add Row" or "Reset Default".
                       </td>
                     </tr>
@@ -139,14 +139,14 @@ export default function Page4Arrangements() {
                     pageData.rows.map(row => (
                       <tr 
                         key={row.id} 
-                        className="border-b border-slate-100 dark:border-slate-900 hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors last:border-0"
+                        className="border-b border-[#e8ddd0]/60 dark:border-slate-800 hover:bg-[#faf5ef] dark:hover:bg-slate-900/50 transition-colors last:border-0"
                       >
                         <td className="p-3">
                           <input
                             type="text"
                             value={row.item || ''}
                             onChange={(e) => handleRowChange(row.id, 'item', e.target.value)}
-                            className="w-full bg-transparent text-xs text-slate-700 dark:text-slate-250 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none py-0.5"
+                            className="w-full bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 border-0 border-b border-transparent focus:border-[#772432] focus:outline-none py-0.5"
                           />
                         </td>
                         <td className="p-3 text-center">
@@ -154,7 +154,7 @@ export default function Page4Arrangements() {
                             type="checkbox"
                             checked={row.ready || false}
                             onChange={() => handleRowChange(row.id, 'ready', !row.ready)}
-                            className="w-4 h-4 text-brand-blue border-slate-300 rounded focus:ring-brand-blue"
+                            className="w-4 h-4 text-[#772432] border-slate-300 rounded focus:ring-[#772432] cursor-pointer"
                           />
                         </td>
                         <td className="p-3">
@@ -163,14 +163,14 @@ export default function Page4Arrangements() {
                             value={row.owner || ''}
                             onChange={(e) => handleRowChange(row.id, 'owner', e.target.value)}
                             placeholder="Assign owner"
-                            className="w-full bg-transparent text-xs text-slate-700 dark:text-slate-250 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none py-0.5"
+                            className="w-full bg-transparent text-xs text-slate-800 dark:text-slate-200 border-0 border-b border-transparent focus:border-[#772432] focus:outline-none py-0.5"
                           />
                         </td>
                         <td className="p-3">
                           <select
                             value={row.priority || 'Medium'}
                             onChange={(e) => handleRowChange(row.id, 'priority', e.target.value)}
-                            className="bg-transparent text-xs text-slate-750 dark:text-slate-300 border-0 border-b border-transparent focus:outline-none py-0.5 focus:border-brand-blue/55 cursor-pointer"
+                            className="bg-transparent text-xs font-bold text-[#772432] dark:text-[#f2a900] border-0 border-b border-transparent focus:outline-none py-0.5 focus:border-[#772432] cursor-pointer"
                           >
                             <option value="High" className="dark:bg-slate-950">🔴 High</option>
                             <option value="Medium" className="dark:bg-slate-950">🟡 Medium</option>
@@ -183,14 +183,14 @@ export default function Page4Arrangements() {
                             value={row.notes || ''}
                             onChange={(e) => handleRowChange(row.id, 'notes', e.target.value)}
                             placeholder="Add notes"
-                            className="w-full bg-transparent text-xs text-slate-700 dark:text-slate-250 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none py-0.5"
+                            className="w-full bg-transparent text-xs text-slate-700 dark:text-slate-300 border-0 border-b border-transparent focus:border-[#772432] focus:outline-none py-0.5"
                           />
                         </td>
                         <td className="p-3 text-center no-print">
                           <button
                             onClick={() => handleDeleteRow(row.id)}
                             title="Delete row"
-                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-[#faf5ef] dark:hover:bg-slate-900 rounded-lg transition-colors cursor-pointer"
                           >
                             <FiTrash2 size={13} />
                           </button>
@@ -207,8 +207,8 @@ export default function Page4Arrangements() {
               
               {/* Venue checklist */}
               <div className="space-y-3">
-                <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                  <FiMapPin className="text-brand-blue" /> Venue Checklist
+                <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                  <FiMapPin className="text-[#004165]" /> Venue Checklist
                 </h3>
                 <div className="space-y-2">
                   {[
@@ -232,8 +232,8 @@ export default function Page4Arrangements() {
 
               {/* Equipment checklist */}
               <div className="space-y-3">
-                <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                  <FiCpu className="text-gold" /> Equipment Checklist
+                <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                  <FiCpu className="text-[#f2a900]" /> Equipment Checklist
                 </h3>
                 <div className="space-y-2">
                   {[
@@ -258,10 +258,10 @@ export default function Page4Arrangements() {
 
             {/* Links and uploaders at bottom */}
             <div className="space-y-3 pt-4">
-              <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                <FiPaperclip className="text-brand-blue" /> Uploads / Attachments URLs
+              <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                <FiPaperclip className="text-[#004165]" /> Uploads / Attachments URLs
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 shadow-sm no-print">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl border border-[#e8ddd0] dark:border-slate-800 bg-white dark:bg-[#0c1421] shadow-sm no-print">
                 <FormInput
                   label="QR Code Link"
                   id="qrCodeUrl"

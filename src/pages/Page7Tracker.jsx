@@ -82,7 +82,7 @@ export default function Page7Tracker() {
           type="date"
           value={row.date || ''}
           onChange={(e) => handleRowChange(row.id, 'date', e.target.value)}
-          className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+          className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
         />
       )
     },
@@ -96,7 +96,7 @@ export default function Page7Tracker() {
           value={row.host || ''}
           onChange={(e) => handleRowChange(row.id, 'host', e.target.value)}
           placeholder="e.g. Corp Alpha"
-          className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none font-bold"
+          className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none font-bold text-[#772432] dark:text-[#f2a900]"
         />
       )
     },
@@ -110,7 +110,7 @@ export default function Page7Tracker() {
           value={row.location || ''}
           onChange={(e) => handleRowChange(row.id, 'location', e.target.value)}
           placeholder="Zoom/Office"
-          className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+          className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
         />
       )
     },
@@ -124,7 +124,7 @@ export default function Page7Tracker() {
           value={row.coordinator || ''}
           onChange={(e) => handleRowChange(row.id, 'coordinator', e.target.value)}
           placeholder="Name"
-          className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+          className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
         />
       )
     },
@@ -137,7 +137,7 @@ export default function Page7Tracker() {
           type="number"
           value={row.attendance || 0}
           onChange={(e) => handleNumericRowChange(row.id, 'attendance', e.target.value)}
-          className="w-16 bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none text-right font-mono"
+          className="w-16 bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-right font-mono text-slate-800 dark:text-slate-200"
         />
       )
     },
@@ -151,7 +151,7 @@ export default function Page7Tracker() {
           value={row.outcome || ''}
           onChange={(e) => handleRowChange(row.id, 'outcome', e.target.value)}
           placeholder="Outcome remarks"
-          className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+          className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
         />
       )
     },
@@ -163,7 +163,7 @@ export default function Page7Tracker() {
         <select
           value={row.status || 'Pending'}
           onChange={(e) => handleRowChange(row.id, 'status', e.target.value)}
-          className="bg-transparent border-0 border-b border-transparent focus:outline-none focus:border-brand-blue/50 cursor-pointer text-slate-750 dark:text-slate-300"
+          className="bg-transparent border-0 border-b border-transparent focus:outline-none focus:border-[#772432] cursor-pointer text-[#772432] dark:text-[#f2a900] font-bold"
         >
           <option value="Pending" className="dark:bg-slate-950">Pending</option>
           <option value="In Progress" className="dark:bg-slate-950">In Progress</option>
@@ -180,7 +180,7 @@ export default function Page7Tracker() {
         <button
           onClick={() => handleDeleteRow(row.id)}
           title="Delete log row"
-          className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors no-print"
+          className="p-1 text-slate-400 hover:text-red-600 hover:bg-[#faf5ef] dark:hover:bg-slate-900 rounded-lg transition-colors no-print cursor-pointer"
         >
           <FiTrash2 size={13} />
         </button>
@@ -196,26 +196,26 @@ export default function Page7Tracker() {
           <div className="space-y-6">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center no-print">
+            <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3 flex justify-between items-center no-print">
               <div>
-                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
-                  Demo Tracker Sheet
+                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
+                  Meeting Tracker Sheet
                 </h2>
-                <p className="text-xs text-slate-405 font-semibold mt-0.5">
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
                   Maintain a central outreach history ledger and log escalation notes.
                 </p>
               </div>
               <button 
                 onClick={handleClear}
-                className="px-3 py-1 bg-slate-50 dark:bg-slate-955 text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all"
+                className="px-3 py-1 bg-[#faf5ef] dark:bg-slate-900 text-[#772432] dark:text-rose-200 hover:bg-[#772432] hover:text-white border border-[#e8ddd0] dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
               >
                 Clear Page
               </button>
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block pb-2 border-b-2 border-slate-900">
-              <h2 className="text-xl font-bold">Demo Tracker Sheet</h2>
+            <div className="hidden print:block pb-2 border-b-2 border-[#772432]">
+              <h2 className="text-xl font-bold text-[#772432]">Meeting Tracker Sheet</h2>
               <p className="text-xs text-slate-650">District 228 Centralized Corporate Leads Tracker</p>
             </div>
 
@@ -223,7 +223,7 @@ export default function Page7Tracker() {
             <DataTable
               columns={columns}
               data={pageData.rows}
-              exportFileName="district_228_demo_tracker"
+              exportFileName="district_228_meeting_tracker"
               searchPlaceholder="Filter leads, Hosts or outcomes..."
               pageSize={6}
               actions={

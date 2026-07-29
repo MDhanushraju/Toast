@@ -1,248 +1,315 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useBooklet } from '../../context/BookletContext';
-import { PAGES } from '../../constants';
 import { 
-  FiHome, FiBookOpen, FiFileText, FiCheckSquare, 
-  FiCalendar, FiPlay, FiAward, FiList, FiSettings, 
-  FiMenu, FiX, FiPlus, FiChevronDown, FiDatabase, FiLogOut 
+  FiHome, FiClipboard, FiClock, FiBarChart2, FiSettings, 
+  FiPlus, FiUser, FiLogOut, FiUsers, FiZap, FiArchive,
+  FiMic, FiAward, FiCheckSquare, FiShare2, FiX
 } from 'react-icons/fi';
 
 export default function Sidebar() {
-  const { booklets, activeBooklet, selectBooklet, createBooklet, currentUser, logoutUser } = useBooklet();
-  const [isOpen, setIsOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const { activeBooklet, createBooklet, currentUser, logoutUser } = useBooklet();
   const navigate = useNavigate();
+  const [showNewBookletModal, setShowNewBookletModal] = useState(false);
+  const [bookletTitle, setBookletTitle] = useState('');
 
-  const handleCreateNew = () => {
-    const title = prompt("Enter a title for the new Booklet:", "New Demo Meeting Booklet");
-    if (title && title.trim() !== '') {
-      const newId = createBooklet(title);
-      navigate('/booklet/cover');
-    }
+  const handleOpenNewModal = () => {
+    setBookletTitle(`District 227 Meeting #${Math.floor(1000 + Math.random() * 9000)}`);
+    setShowNewBookletModal(true);
   };
 
-  const handleLogout = () => {
-    if (confirm("Are you sure you want to sign out?")) {
-      logoutUser();
-      navigate('/');
-    }
+  const handleConfirmCreateBooklet = (e) => {
+    e.preventDefault();
+    const title = bookletTitle.trim() || "District Meeting Booklet";
+    createBooklet(title);
+    setShowNewBookletModal(false);
+    setBookletTitle('');
+    navigate('/booklet/segment-1');
   };
 
-  // Nav icons mapper
-  const getIcon = (pageNum) => {
-    switch (pageNum) {
-      case 1: return FiBookOpen;
-      case 2: return FiFileText;
-      case 3: return FiCheckSquare;
-      case 4: return FiCalendar;
-      case 5: return FiPlay;
-      case 6: return FiAward;
-      case 7: return FiList;
-      case 8: return FiDatabase;
-      default: return FiFileText;
-    }
-  };
+  const navItems = [
+    { name: '1. Before Meeting', path: '/booklet/segment-1', icon: FiClipboard },
+    { name: '2. During Meeting', path: '/booklet/segment-2', icon: FiClock },
+    { name: '3. After Meeting', path: '/booklet/segment-3', icon: FiBarChart2 }
+  ];
 
   return (
-    <>
-      {/* Mobile Toggle Header */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 no-print z-40">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-brand-blue/15">
-            D
-          </div>
-          <span className="font-outfit font-extrabold text-slate-800 dark:text-slate-200 text-sm">District 228</span>
+    <aside className="w-full lg:w-72 bg-[#006094] text-white flex flex-col justify-between shrink-0 lg:fixed lg:top-0 lg:bottom-0 lg:left-0 z-40 shadow-xl no-print border-r border-[#003a5c]">
+      
+      {/* Header Container */}
+      <div className="p-6 flex flex-col gap-3.5 border-b border-white/15">
+        <div className="text-left">
+          <span className="text-[11px] font-black text-white/80 uppercase tracking-widest block font-montserrat">
+            TOASTMASTERS INTERNATIONAL
+          </span>
+          <h1 className="text-xl font-black font-montserrat text-white uppercase tracking-wider mt-0.5">
+            DISTRICT 227
+          </h1>
         </div>
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-805"
-        >
-          {isOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-        </button>
+
+        <div>
+          <button 
+            onClick={handleOpenNewModal}
+            className="w-full py-2.5 px-4 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer font-montserrat uppercase tracking-wider"
+          >
+            <FiPlus size={16} /> Create New Booklet
+          </button>
+        </div>
       </div>
 
-      {/* Sidebar Panel */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
-        transform lg:transform-none transition-transform duration-300 ease-in-out no-print flex flex-col justify-between
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="flex flex-col h-full overflow-y-auto">
-          {/* Brand Logo Header */}
-          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-blue to-brand-navy flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-brand-blue/20">
-                D
-              </div>
-              <div>
-                <h1 className="font-outfit font-extrabold text-slate-900 dark:text-slate-100 text-base leading-tight">District 228</h1>
-                <p className="text-[10px] text-slate-400 font-bold tracking-wider">Booklet Hub</p>
-              </div>
-            </div>
-            <button className="lg:hidden text-slate-400 hover:text-slate-600" onClick={() => setIsOpen(false)}>
-              <FiX size={20} />
-            </button>
+      {/* Main Navigation List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 font-sans">
+        
+        {/* 1. Home Dashboard Link */}
+        <div className="space-y-1">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiHome size={18} className="shrink-0" />
+            <span>Home Dashboard</span>
+          </NavLink>
+        </div>
+
+        {/* 2. Active Booklet Meeting Segments */}
+        <div className="space-y-1.5 pt-2 border-t border-white/15">
+          <div className="text-xs font-black text-white/80 uppercase tracking-wider px-2 font-montserrat">
+            <span>MEETING SEGMENTS</span>
           </div>
 
-          {/* Active booklet selector */}
-          {activeBooklet && (
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 relative">
-              <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-2">Active Booklet</div>
-              <button 
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="w-full flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-left hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
-              >
-                <div className="truncate pr-2">
-                  <div className="font-bold text-xs text-slate-800 dark:text-slate-250 truncate">{activeBooklet.title}</div>
-                  <div className="text-[10px] text-slate-450 dark:text-slate-500 truncate">{activeBooklet.page3?.hostOrganization || 'No Host Org'}</div>
-                </div>
-                <FiChevronDown size={14} className={`text-slate-400 flex-shrink-0 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-              </button>
-
-              {showDropdown && (
-                <div className="absolute left-4 right-4 mt-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                  {booklets.map(b => (
-                    <button
-                      key={b.id}
-                      onClick={() => {
-                        selectBooklet(b.id);
-                        setShowDropdown(false);
-                      }}
-                      className={`w-full text-left p-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors border-b border-slate-100 dark:border-slate-900 last:border-0 ${b.id === activeBooklet.id ? 'bg-brand-blue/5 text-brand-blue font-bold' : 'text-slate-600 dark:text-slate-400'}`}
-                    >
-                      <div className="truncate">{b.title}</div>
-                      <div className="text-[10px] text-slate-455">{b.createdAt} • {b.completedPercent}% complete</div>
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => {
-                      handleCreateNew();
-                      setShowDropdown(false);
-                    }}
-                    className="w-full text-left p-3 text-xs text-brand-blue hover:bg-brand-blue/5 transition-colors font-bold flex items-center gap-2 border-t border-slate-100 dark:border-slate-905"
+          {activeBooklet ? (
+            <div className="space-y-1 pt-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl transition-all cursor-pointer font-montserrat text-xs sm:text-sm font-black ${
+                        isActive
+                          ? 'bg-[#781327] text-white shadow-md border-l-4 border-rose-300'
+                          : 'text-white/90 hover:bg-white/10 hover:text-white'
+                      }`
+                    }
                   >
-                    <FiPlus size={14} /> Create New Booklet
-                  </button>
-                </div>
-              )}
+                    <Icon size={17} className="shrink-0 text-white" />
+                    <span className="truncate">{item.name}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-3 text-xs text-white/80 bg-white/10 rounded-2xl text-center font-bold">
+              Select a meeting to view segments.
             </div>
           )}
-
-          {/* Navigation Links */}
-          <nav className="p-4 space-y-1 flex-1">
-            <NavLink
-              to="/"
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-250
-                ${isActive 
-                  ? 'bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20' 
-                  : 'text-slate-605 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/50 hover:text-slate-900 dark:hover:text-slate-200'}
-              `}
-            >
-              <FiHome size={16} />
-              <span>Dashboard</span>
-            </NavLink>
-
-            {activeBooklet && PAGES.map(item => {
-              const Icon = getIcon(item.pageNum);
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className={({ isActive }) => `
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-250
-                    ${isActive 
-                      ? 'bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20' 
-                      : 'text-slate-605 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/50 hover:text-slate-900 dark:hover:text-slate-200'}
-                  `}
-                >
-                  <Icon size={16} className="flex-shrink-0" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-
-            <NavLink
-              to="/settings"
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-250
-                ${isActive 
-                  ? 'bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20' 
-                  : 'text-slate-605 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/50 hover:text-slate-900 dark:hover:text-slate-200'}
-              `}
-            >
-              <FiSettings size={16} />
-              <span>Settings</span>
-            </NavLink>
-          </nav>
         </div>
 
-        {/* User Card & Completion Progress Widget */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-805 space-y-4 bg-slate-50/50 dark:bg-slate-950/20">
-          
-          {/* User profile details with Profile Avatar Icon and logout next to it */}
-          {currentUser && (
-            <div className="flex flex-col gap-2.5 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-              <div className="flex items-center gap-3">
-                {/* Profile Icon / Avatar */}
-                <div className="w-8 h-8 rounded-full bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue flex items-center justify-center font-extrabold text-xs shrink-0">
-                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs text-slate-850 dark:text-slate-200 truncate leading-tight">
-                    {currentUser.name}
-                  </div>
-                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-bold truncate">
-                    {currentUser.areaDirectorOf ? `${currentUser.areaDirectorOf} • ` : ''}
-                    {currentUser.division || ''}
-                  </div>
-                </div>
+        {/* 3. Specialized Role-Based Views & Portals */}
+        <div className="space-y-1 pt-3 border-t border-white/15">
+          <div className="text-xs font-black text-white/80 uppercase tracking-wider px-2 pb-1 font-montserrat">
+            ROLE PORTALS & TOOLS
+          </div>
 
-                {/* Logout Button right next to it */}
+          <NavLink
+            to="/live-agenda"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiCheckSquare size={18} className="text-emerald-300 shrink-0" />
+            <span>Live Agenda View</span>
+          </NavLink>
+
+          <NavLink
+            to="/vote"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-rose-300'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiAward size={18} className="text-rose-300 shrink-0" />
+            <span>Digital Voting</span>
+          </NavLink>
+
+          <NavLink
+            to="/certificates"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-amber-300'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiAward size={18} className="text-amber-300 shrink-0" />
+            <span>Award Certificates</span>
+          </NavLink>
+        </div>
+
+        {/* 4. Overview & Directory Links */}
+        <div className="space-y-1 pt-3 border-t border-white/15">
+          <div className="text-xs font-black text-white/80 uppercase tracking-wider px-2 pb-1 font-montserrat">
+            OVERVIEW & DIRECTORY
+          </div>
+
+          <NavLink
+            to="/current-meetings"
+            className={({ isActive }) =>
+              `flex items-center gap-[#006094] px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiZap size={18} className="text-amber-300 shrink-0" />
+            <span>Current Meetings</span>
+          </NavLink>
+
+          <NavLink
+            to="/meeting-history"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiArchive size={18} className="text-slate-300 shrink-0" />
+            <span>Meeting History</span>
+          </NavLink>
+
+          <NavLink
+            to="/contacts"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all font-montserrat ${
+                isActive
+                  ? 'bg-white/20 text-white shadow-md border-l-4 border-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`
+            }
+          >
+            <FiUsers size={18} className="text-sky-300 shrink-0" />
+            <span>District 227 Contacts</span>
+          </NavLink>
+        </div>
+
+      </div>
+
+      {/* Footer Profile & Settings */}
+      <div className="p-4 border-t border-white/15 space-y-2 font-sans">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-black transition-colors ${
+              isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10'
+            }`
+          }
+        >
+          <FiSettings size={16} />
+          <span>App Settings</span>
+        </NavLink>
+
+        <div className="flex items-center justify-between bg-white/12 p-3 rounded-2xl text-xs border border-white/20 shadow-xs">
+          <div className="flex items-center gap-2.5 truncate">
+            <div className="w-8 h-8 rounded-full bg-white text-[#006094] font-black flex items-center justify-center text-xs shrink-0 shadow-xs">
+              {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'P'}
+            </div>
+            <div className="truncate leading-tight">
+              <div className="font-black text-white text-xs truncate">{currentUser?.name || 'Pramod K Murthy'}</div>
+              <div className="text-[10px] text-white/70 truncate font-bold">{currentUser?.district || 'District 227'}</div>
+            </div>
+          </div>
+          <button 
+            onClick={logoutUser}
+            title="Log out"
+            className="p-1.5 text-white/90 hover:text-white hover:bg-white/15 rounded-xl transition-colors cursor-pointer"
+          >
+            <FiLogOut size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Centered Create New Booklet Modal */}
+      {showNewBookletModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+          <div className="bg-white dark:bg-[#121e2d] border-2 border-[#006094] dark:border-sky-900 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 text-slate-900 dark:text-white font-sans">
+            
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <span className="text-[10px] font-black text-[#006094] dark:text-sky-300 uppercase tracking-widest font-montserrat block">
+                  District 227 Toastmasters
+                </span>
+                <h3 className="text-xl font-montserrat font-black text-[#006094] dark:text-white mt-0.5">
+                  Create New Meeting Booklet
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewBookletModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-full cursor-pointer"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmCreateBooklet} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black text-[#006094] dark:text-sky-300 uppercase tracking-wider mb-1.5 font-montserrat">
+                  Meeting Title *
+                </label>
+                <input
+                  type="text"
+                  value={bookletTitle}
+                  onChange={(e) => setBookletTitle(e.target.value)}
+                  placeholder="e.g. District 227 Meeting #1040"
+                  required
+                  autoFocus
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-[#006094]/30 dark:border-slate-800 text-sm font-black text-slate-900 dark:text-white rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006094]"
+                />
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-1 block">
+                  Creates a clean booklet without dummy strings ready for your meeting details.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
-                  onClick={handleLogout}
-                  title="Sign Out"
-                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors flex-shrink-0"
+                  type="button"
+                  onClick={() => setShowNewBookletModal(false)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl cursor-pointer hover:bg-slate-200"
                 >
-                  <FiLogOut size={14} />
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-xs rounded-xl cursor-pointer shadow-md font-montserrat"
+                >
+                  Done (Start Meeting Setup)
                 </button>
               </div>
+            </form>
 
-              <div className="text-[8px] text-slate-450 dark:text-slate-500 font-semibold border-t border-slate-100 dark:border-slate-805 pt-1 truncate">
-                {currentUser.district || 'District 228'}
-              </div>
-            </div>
-          )}
-
-          {activeBooklet && (
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[9px] font-bold text-slate-450 dark:text-slate-450 uppercase tracking-wider">Booklet Progress</span>
-                <span className="text-xs font-extrabold text-brand-blue">{activeBooklet.completedPercent}%</span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-950 h-1.5 rounded-full overflow-hidden">
-                <div 
-                  className="bg-brand-blue h-full rounded-full transition-all duration-500 ease-out" 
-                  style={{ width: `${activeBooklet.completedPercent}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
-      </aside>
-
-      {/* Mobile backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsOpen(false)}
-        ></div>
       )}
-    </>
+
+    </aside>
   );
 }

@@ -8,9 +8,8 @@ export default function ProgressRing({ percentage = 0, size = 120, strokeWidth =
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90 w-full h-full">
-        {/* Background Track */}
         <circle
-          className="text-slate-100 dark:text-slate-800"
+          className="text-[#e8ddd0] dark:text-slate-800"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"
@@ -18,9 +17,8 @@ export default function ProgressRing({ percentage = 0, size = 120, strokeWidth =
           cx={size / 2}
           cy={size / 2}
         />
-        {/* Progress Fill */}
         <circle
-          className="text-brand-blue transition-all duration-500 ease-out"
+          className="text-[#006094] dark:text-white transition-all duration-500 ease-out"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -32,10 +30,9 @@ export default function ProgressRing({ percentage = 0, size = 120, strokeWidth =
           cy={size / 2}
         />
       </svg>
-      {/* Center Label */}
       <div className="absolute flex flex-col items-center justify-center text-center">
         {children ? children : (
-          <span className="font-outfit font-extrabold text-slate-800 dark:text-slate-100" style={{ fontSize: size * 0.22 }}>
+          <span className="font-montserrat font-extrabold text-[#006094] dark:text-white" style={{ fontSize: size * 0.22 }}>
             {percentage}%
           </span>
         )}

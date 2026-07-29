@@ -114,26 +114,26 @@ export default function Page3Before() {
           <div className="space-y-6">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center no-print">
+            <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3 flex justify-between items-center no-print">
               <div>
-                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
-                  Before Demo Meeting
+                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
+                  Before Meeting
                 </h2>
-                <p className="text-xs text-slate-405 font-semibold mt-0.5">
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
                   Confirm meeting readiness, assign primary speakers, and secure sign-offs.
                 </p>
               </div>
               <button 
                 onClick={handleClear}
-                className="px-3 py-1 bg-slate-50 dark:bg-slate-950 text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all"
+                className="px-3 py-1 bg-[#faf5ef] dark:bg-slate-900 text-[#772432] dark:text-rose-200 hover:bg-[#772432] hover:text-white border border-[#e8ddd0] dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
               >
                 Clear Page
               </button>
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block pb-2 border-b-2 border-slate-900">
-              <h2 className="text-xl font-bold">Before Demo Meeting</h2>
+            <div className="hidden print:block pb-2 border-b-2 border-[#772432]">
+              <h2 className="text-xl font-bold text-[#772432]">Before Meeting</h2>
               <p className="text-xs text-slate-650">District 228 Meeting Readiness & Approvals</p>
             </div>
 
@@ -145,8 +145,8 @@ export default function Page3Before() {
                 {/* Readiness Checklist */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between no-print">
-                    <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-200 text-xs flex items-center gap-1.5">
-                      <FiCheckSquare className="text-brand-blue" /> Quality Checklist
+                    <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                      <FiCheckSquare className="text-[#004165]" /> Quality Checklist
                     </h3>
                     <Button variant="secondary" size="xs" onClick={handleAddCustomItem}>
                       <FiPlus size={12} className="mr-1" /> Add New
@@ -156,14 +156,14 @@ export default function Page3Before() {
                     {checklistItems.map(item => (
                       <div 
                         key={item.id} 
-                        className="flex flex-col gap-2 p-3 bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-850 rounded-xl hover:border-brand-blue/30 transition-all duration-200"
+                        className="flex flex-col gap-2 p-3 bg-white dark:bg-[#0c1421] border border-[#e8ddd0] dark:border-slate-800 rounded-xl hover:border-[#772432]/40 transition-all duration-200"
                       >
                         <div className="flex items-start gap-3">
                           <input
                             type="checkbox"
                             checked={item.checked || false}
                             onChange={() => handleCheckChange(item.id)}
-                            className="mt-0.5 w-4.5 h-4.5 text-brand-blue border-slate-350 rounded focus:ring-brand-blue"
+                            className="mt-0.5 w-4.5 h-4.5 text-[#772432] border-slate-350 rounded focus:ring-[#772432] cursor-pointer"
                           />
                           <div className="flex-1 min-w-0">
                             {item.isCustom ? (
@@ -172,23 +172,23 @@ export default function Page3Before() {
                                   type="text"
                                   value={item.label}
                                   onChange={(e) => handleCustomItemChange(item.id, 'label', e.target.value)}
-                                  className="w-full text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none p-1 rounded"
+                                  className="w-full text-xs font-bold text-[#772432] dark:text-slate-200 bg-[#faf5ef] dark:bg-slate-900 border border-[#e8ddd0] focus:border-[#772432] focus:outline-none p-1 rounded"
                                   placeholder="Checklist title"
                                 />
                                 <input
                                   type="text"
                                   value={item.desc}
                                   onChange={(e) => handleCustomItemChange(item.id, 'desc', e.target.value)}
-                                  className="w-full text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none p-1 rounded"
+                                  className="w-full text-[10px] text-slate-500 dark:text-slate-400 bg-[#faf5ef] dark:bg-slate-900 border border-[#e8ddd0] focus:border-[#772432] focus:outline-none p-1 rounded"
                                   placeholder="Details/instructions"
                                 />
                               </div>
                             ) : (
                               <div className="space-y-0.5">
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-250 block leading-tight">
+                                <span className="text-xs font-bold text-[#772432] dark:text-slate-200 block leading-tight">
                                   {item.label}
                                 </span>
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 block leading-normal">
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 block leading-normal">
                                   {item.desc}
                                 </span>
                               </div>
@@ -197,10 +197,10 @@ export default function Page3Before() {
                             {/* Print view render for custom items */}
                             {item.isCustom && (
                               <div className="hidden print:block space-y-0.5">
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-250 block leading-tight">
+                                <span className="text-xs font-bold text-[#772432] dark:text-slate-200 block leading-tight">
                                   {item.label}
                                 </span>
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 block leading-normal">
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 block leading-normal">
                                   {item.desc}
                                 </span>
                               </div>
@@ -210,7 +210,7 @@ export default function Page3Before() {
                           {item.isCustom && (
                             <button
                               onClick={() => handleDeleteCustomItem(item.id)}
-                              className="text-slate-400 hover:text-red-500 p-1 rounded hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors no-print"
+                              className="text-slate-400 hover:text-red-600 p-1 rounded hover:bg-[#faf5ef] dark:hover:bg-slate-900 transition-colors no-print cursor-pointer"
                               title="Delete custom item"
                             >
                               <FiTrash2 size={13} />
@@ -224,10 +224,10 @@ export default function Page3Before() {
 
                 {/* Sign-offs & approvals */}
                 <div className="space-y-4">
-                  <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-200 text-xs flex items-center gap-1.5">
-                    <FiAward className="text-gold" /> Approvals & Sign-off
+                  <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                    <FiAward className="text-[#f2a900]" /> Approvals & Sign-off
                   </h3>
-                  <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 space-y-3 shadow-sm">
+                  <div className="p-4 rounded-2xl border border-[#e8ddd0] dark:border-slate-800 bg-white dark:bg-[#0c1421] space-y-3 shadow-sm">
                     <FormInput
                       label="Prepared By"
                       id="preparedBy"
@@ -259,16 +259,16 @@ export default function Page3Before() {
                 
                 {/* Meta details */}
                 <div className="space-y-3">
-                  <h3 className="font-outfit font-bold text-slate-855 dark:text-slate-200 text-xs flex items-center gap-1.5">
-                    <FiInfo className="text-brand-blue" /> General Session Metadata
+                  <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                    <FiInfo className="text-[#004165]" /> General Session Metadata
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl border border-[#e8ddd0] dark:border-slate-800 bg-white dark:bg-[#0c1421] shadow-sm">
                     <FormInput
-                      label="Demo Title"
+                      label="Meeting Title"
                       id="demoTitle"
                       value={pageData.demoTitle || ''}
                       onChange={(e) => handleFieldChange('demoTitle', e.target.value)}
-                      placeholder="Corporation Alpha Demo Booklet"
+                      placeholder="Corporation Alpha Booklet"
                       className="sm:col-span-2"
                     />
                     <FormInput
@@ -312,10 +312,10 @@ export default function Page3Before() {
 
                 {/* Role Assignments Grid */}
                 <div className="space-y-3">
-                  <h3 className="font-outfit font-bold text-slate-855 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                    <FiUsers className="text-gold" /> Meeting Roles Allocation
+                  <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                    <FiUsers className="text-[#f2a900]" /> Meeting Roles Allocation
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl border border-[#e8ddd0] dark:border-slate-800 bg-white dark:bg-[#0c1421] shadow-sm">
                     {[
                       { key: 'toastmaster', label: 'Toastmaster of the Day' },
                       { key: 'speaker1', label: 'Prepared Speaker 1' },

@@ -12,21 +12,21 @@ export default function FormCheckbox({
 }) {
   return (
     <div className={`space-y-1 ${className}`}>
-      <label className="flex items-start gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-850 rounded-xl hover:border-brand-blue/30 cursor-pointer select-none transition-all duration-200">
+      <label className="flex items-start gap-3 p-3 bg-white dark:bg-[#0c1421] border border-[#e8ddd0] dark:border-slate-800 rounded-xl hover:border-[#006094]/40 cursor-pointer select-none transition-all duration-200">
         <input
           type="checkbox"
           id={id}
           checked={checked}
           onChange={onChange}
-          className="mt-0.5 w-4.5 h-4.5 text-brand-blue border-slate-350 rounded focus:ring-brand-blue focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+          className="mt-0.5 w-4.5 h-4.5 text-[#006094] border-slate-350 rounded focus:ring-[#006094] focus:ring-offset-2 dark:focus:ring-offset-slate-900 cursor-pointer"
           {...props}
         />
         <div className="space-y-0.5">
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-250 block leading-tight">
+          <span className="text-xs font-bold text-[#006094] dark:text-slate-200 block leading-tight font-montserrat">
             {label}
           </span>
           {description && (
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 block leading-normal">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block leading-normal">
               {description}
             </span>
           )}

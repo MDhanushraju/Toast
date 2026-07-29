@@ -1,15 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBooklet } from '../../context/BookletContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-  FiSun, FiMoon, FiPrinter, FiBell, FiSearch, 
-  FiChevronDown, FiCornerUpLeft, FiCornerUpRight, FiX, FiCheckSquare 
-} from 'react-icons/fi';
+import { FiPrinter, FiSearch } from 'react-icons/fi';
+import ToastmastersLogo from '../ui/ToastmastersLogo';
 
 export default function Header() {
   const { 
-    activeBooklet, theme, setTheme, canUndo, canRedo, undo, redo, 
-    notifications, clearNotifications, markNotificationsAsRead, booklets, selectBooklet
+    activeBooklet, booklets, selectBooklet, currentUser
   } = useBooklet();
 
   const location = useLocation();
@@ -17,17 +14,11 @@ export default function Header() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
-
-  const notifRef = useRef(null);
   const searchRef = useRef(null);
 
-  // Close dropdowns on outside click
+  // Close search dropdown on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifDropdown(false);
-      }
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setShowSearchDropdown(false);
       }
@@ -44,69 +35,31 @@ export default function Header() {
     }
   };
 
-  const getPageTitle = () => {
-    switch (location.pathname) {
-      case '/': return 'SaaS booklet Hub';
-      case '/settings': return 'App Configurations';
-      case '/print': return 'Print Layout';
-      case '/booklet/cover': return 'Cover Details';
-      case '/booklet/quick-reference': return 'Quick Reference Guide';
-      case '/booklet/before-meeting': return 'Before Meeting Prep';
-      case '/booklet/arrangements': return 'Logistics Checklist';
-      case '/booklet/during-meeting': return 'Session Execution';
-      case '/booklet/outcome': return 'Outcome Capture';
-      case '/booklet/tracker': return 'Demo Tracker Sheet';
-      case '/booklet/data-sheet': return 'Booklet Data Sheet';
-      default: return 'District 228 Manager';
-    }
-  };
-
   // Find booklets matching search queries
   const matchingBooklets = searchQuery.trim() === '' ? [] : booklets.filter(b => {
     return b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
            (b.page3?.hostOrganization && b.page3.hostOrganization.toLowerCase().includes(searchQuery.toLowerCase()));
   });
 
-  const unreadNotifCount = notifications.filter(n => !n.read).length;
-
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 no-print">
-      {/* Title */}
-      <div className="flex flex-col">
-        <h2 className="text-sm font-bold font-outfit text-slate-850 dark:text-slate-200 leading-tight">
-          {getPageTitle()}
-        </h2>
-        {activeBooklet && location.pathname.startsWith('/booklet/') && (
-          <p className="text-[10px] text-slate-400 font-semibold mt-0.5 truncate max-w-[150px] sm:max-w-md">
-            Editing: <span className="text-slate-600 dark:text-slate-350 font-bold">{activeBooklet.title}</span>
-          </p>
-        )}
+    <header className="sticky top-0 z-30 flex items-center justify-between min-h-[96px] py-6 px-10 bg-[#781327] text-white border-b-2 border-[#580d1b] shadow-xl no-print font-sans transition-all">
+      {/* Toastmasters Logo & District Brand Lockup - Taller & Larger Typography */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-white rounded-2xl p-1.5 flex items-center justify-center shadow-md shrink-0">
+          <ToastmastersLogo district="" size="sm" className="bg-transparent border-0 shadow-none p-0" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="text-[10px] font-black text-white/90 uppercase tracking-widest block font-montserrat leading-tight">
+            TOASTMASTERS INTERNATIONAL
+          </span>
+          <h1 className="text-lg sm:text-xl font-black font-montserrat text-white uppercase tracking-wider leading-tight mt-0.5">
+            DISTRICT 227
+          </h1>
+        </div>
       </div>
 
-      {/* Global Actions */}
-      <div className="flex items-center gap-3 sm:gap-4">
-        {/* Undo / Redo controls */}
-        <div className="flex items-center border-r border-slate-200 dark:border-slate-800 pr-3 sm:pr-4 gap-1">
-          <button
-            onClick={undo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-            className="p-1.5 rounded-lg text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
-            aria-label="Undo"
-          >
-            <FiCornerUpLeft size={16} />
-          </button>
-          <button
-            onClick={redo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-            className="p-1.5 rounded-lg text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
-            aria-label="Redo"
-          >
-            <FiCornerUpRight size={16} />
-          </button>
-        </div>
-
+      {/* Right Actions: Minimal & Clean with Taller Touch Targets */}
+      <div className="flex items-center gap-5">
         {/* Global Search Bar */}
         <div ref={searchRef} className="relative hidden md:block">
           <input
@@ -118,15 +71,15 @@ export default function Header() {
               setShowSearchDropdown(true);
             }}
             onFocus={() => setShowSearchDropdown(true)}
-            className="w-48 lg:w-64 px-4 py-1.5 pl-10 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-blue"
+            className="w-56 lg:w-72 px-4 py-2.5 pl-11 text-xs sm:text-sm font-bold rounded-2xl bg-white/15 border border-white/25 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/40 shadow-xs"
           />
-          <FiSearch size={14} className="absolute left-3.5 top-2.5 text-slate-450" />
+          <FiSearch size={18} className="absolute left-3.5 top-3 text-white/80" />
           
           {showSearchDropdown && searchQuery.trim() !== '' && (
-            <div className="absolute right-0 mt-1.5 w-64 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 p-2 max-h-60 overflow-y-auto">
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-2 pb-1 border-b border-slate-100 dark:border-slate-900 mb-1">Search Results</div>
+            <div className="absolute right-0 mt-2 w-72 bg-[#580d1b] border border-white/20 rounded-2xl shadow-2xl z-50 p-3 max-h-64 overflow-y-auto text-white">
+              <div className="text-[10px] font-extrabold text-white/80 uppercase tracking-widest px-2 pb-1 border-b border-white/20 mb-1 font-montserrat">Search Results</div>
               {matchingBooklets.length === 0 ? (
-                <div className="text-[10px] text-slate-400 p-2 text-center">No booklets match queries</div>
+                <div className="text-xs text-white/70 p-2 text-center">No booklets match queries</div>
               ) : (
                 matchingBooklets.map(b => (
                   <button
@@ -135,12 +88,12 @@ export default function Header() {
                       selectBooklet(b.id);
                       setSearchQuery('');
                       setShowSearchDropdown(false);
-                      navigate('/booklet/cover');
+                      navigate('/booklet/segment-1');
                     }}
-                    className="w-full text-left p-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors"
+                    className="w-full text-left p-2.5 text-xs sm:text-sm hover:bg-[#781327] rounded-xl transition-colors cursor-pointer text-white"
                   >
-                    <div className="font-semibold text-slate-850 dark:text-slate-200 truncate">{b.title}</div>
-                    <div className="text-[9px] text-slate-400 truncate">{b.page3?.hostOrganization || 'No Host'}</div>
+                    <div className="font-extrabold text-white truncate">{b.title}</div>
+                    <div className="text-[10px] text-white/70 truncate">{b.page3?.hostOrganization || 'No Host'}</div>
                   </button>
                 ))
               )}
@@ -148,85 +101,26 @@ export default function Header() {
           )}
         </div>
 
-        {/* Action Widgets */}
-        <div className="flex items-center gap-2">
-          {/* Print preview button */}
-          {location.pathname.startsWith('/booklet/') && (
-            <button
-              onClick={handlePrint}
-              title="Print preview"
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 border border-slate-200/60 dark:border-slate-800 transition-colors flex items-center gap-1.5 text-xs font-bold"
-            >
-              <FiPrinter size={15} />
-              <span className="hidden sm:inline">Print Booklet</span>
-            </button>
-          )}
-
-          {/* Theme Toggler */}
+        {/* Print Booklet button */}
+        {location.pathname.startsWith('/booklet/') && (
           <button
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-655 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 border border-slate-200/60 dark:border-slate-800 transition-colors"
-            title="Toggle color theme"
+            onClick={handlePrint}
+            title="Print preview"
+            className="px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white border border-white/25 transition-colors flex items-center gap-2 text-xs sm:text-sm font-extrabold shadow-sm cursor-pointer font-montserrat"
           >
-            {theme === 'light' ? <FiMoon size={15} /> : <FiSun size={15} />}
+            <FiPrinter size={18} />
+            <span className="hidden sm:inline">Print Booklet</span>
           </button>
+        )}
 
-          {/* Notifications Panel */}
-          <div ref={notifRef} className="relative">
-            <button
-              onClick={() => {
-                setShowNotifDropdown(!showNotifDropdown);
-                markNotificationsAsRead();
-              }}
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-655 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 border border-slate-200/60 dark:border-slate-800 transition-colors relative"
-              title="Notifications panel"
-            >
-              <FiBell size={15} />
-              {unreadNotifCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full flex items-center justify-center text-[7px] text-white font-bold">
-                  {unreadNotifCount}
-                </span>
-              )}
-            </button>
-
-            {showNotifDropdown && (
-              <div className="absolute right-0 mt-1.5 w-64 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 p-2 max-h-80 overflow-y-auto">
-                <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-slate-900 mb-1">
-                  <span className="text-[10px] font-bold text-slate-450 uppercase tracking-widest">Alert Messages</span>
-                  {notifications.length > 0 && (
-                    <button 
-                      onClick={clearNotifications}
-                      className="text-[9px] text-red-500 hover:text-red-655 font-bold hover:underline"
-                    >
-                      Clear All
-                    </button>
-                  )}
-                </div>
-                {notifications.length === 0 ? (
-                  <div className="text-[10px] text-slate-405 p-3 text-center">No alerts logged</div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {notifications.map(n => (
-                      <div key={n.id} className={`p-2 rounded-lg text-[10px] ${n.read ? 'bg-transparent text-slate-500' : 'bg-brand-blue/5 text-slate-800 dark:text-slate-200 font-semibold'}`}>
-                        <div className="leading-snug">{n.message}</div>
-                        <div className="text-[8px] text-slate-400 mt-0.5">{n.time}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* User Block */}
-        <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3 sm:pl-4">
-          <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 flex items-center justify-center font-bold text-xs text-brand-blue">
-            PK
+        {/* Clean Profile Badge */}
+        <div className="flex items-center gap-3.5 border-l border-white/25 pl-5">
+          <div className="w-10 h-10 rounded-full bg-white text-[#781327] flex items-center justify-center font-black text-sm shadow-md shrink-0">
+            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div className="hidden xl:block text-left leading-tight">
-            <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200">Pramod K Murthy</div>
-            <span className="text-[9px] text-slate-400 font-semibold">District 228 Admin</span>
+            <div className="text-xs sm:text-sm font-black text-white font-montserrat">{currentUser?.name || 'Pramod K Murthy'}</div>
+            <span className="text-[10px] text-white/80 font-bold block">{currentUser?.district || 'District 227'}</span>
           </div>
         </div>
       </div>

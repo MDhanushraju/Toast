@@ -41,18 +41,18 @@ export default function Settings() {
   };
 
   const handleResetAll = () => {
-    if (confirm("Reset ALL application data? This will delete all custom booklets and restore original demo seeds. This cannot be undone.")) {
+    if (confirm("Reset ALL application data? This will delete all custom booklets and restore original seeds. This cannot be undone.")) {
       resetAllData();
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-        <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
+      <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3">
+        <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
           Global Settings
         </h2>
-        <p className="text-xs text-slate-400 font-medium mt-1">
+        <p className="text-xs text-slate-500 font-semibold mt-1">
           Configure interface behaviors, manage backups, and configure printing margins.
         </p>
       </div>
@@ -62,34 +62,34 @@ export default function Settings() {
         <Card title="Interface Customization" icon={FiSun}>
           <div className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest mb-2">
+              <label className="block text-[10px] font-extrabold text-[#772432] dark:text-[#f2a900] uppercase tracking-widest mb-2">
                 Display Theme
               </label>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setTheme('light')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                     theme === 'light' 
-                      ? 'bg-brand-blue/10 border-brand-blue text-brand-blue' 
-                      : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-850 text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'
+                      ? 'bg-[#772432] border-[#772432] text-white' 
+                      : 'bg-[#faf5ef] dark:bg-slate-950 border-[#e8ddd0] dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:bg-[#772432]/10'
                   }`}
                 >
                   <FiSun size={14} /> Light Theme
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                     theme === 'dark' 
-                      ? 'bg-brand-blue/20 border-brand-blue text-brand-blue' 
-                      : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-850 text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'
+                      ? 'bg-[#004165] border-[#004165] text-white' 
+                      : 'bg-[#faf5ef] dark:bg-slate-950 border-[#e8ddd0] dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:bg-[#004165]/10'
                   }`}
                 >
                   <FiMoon size={14} /> Dark Theme
                 </button>
               </div>
             </div>
-            <div className="text-[10px] text-slate-400 leading-relaxed font-medium">
-              Toggle between a clean clinical corporate light theme and an eye-friendly developer dark mode. Styles adapt instantly across all pages and charts.
+            <div className="text-[10px] text-slate-500 leading-relaxed font-medium">
+              Toggle between a clean corporate light theme and an eye-friendly developer dark mode. Styles adapt instantly across all pages.
             </div>
           </div>
         </Card>
@@ -118,14 +118,14 @@ export default function Settings() {
             {importStatus.message && (
               <div className={`p-3 rounded-xl text-[10px] font-bold ${
                 importStatus.type === 'success' 
-                  ? 'bg-green-50 text-green-650 dark:bg-green-950/20' 
-                  : 'bg-red-50 text-red-500 dark:bg-red-950/20'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300' 
+                  : 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300'
               }`}>
                 {importStatus.message}
               </div>
             )}
 
-            <div className="text-[10px] text-slate-400 leading-relaxed font-medium">
+            <div className="text-[10px] text-slate-500 leading-relaxed font-medium">
               Export all local booklets to a portable JSON backup file. Restore backups on other machines to duplicate trackers and booklets.
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function Settings() {
               onChange={(e) => setPrintMargin(e.target.value)}
               placeholder="e.g. 15mm or 20mm"
             />
-            <div className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold leading-relaxed">
+            <div className="text-[10px] text-slate-500 font-semibold leading-relaxed">
               Define standard page margins applied across custom PDF export canvases. The standard value of 15mm allows optimal spacing for binders.
             </div>
           </div>
@@ -153,20 +153,20 @@ export default function Settings() {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleResetActive}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-655 border border-red-200 dark:bg-red-950/20 dark:border-red-950/40 dark:hover:bg-red-950/40 text-xs font-bold transition-all"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold transition-all cursor-pointer"
               >
                 <FiRefreshCw size={14} className="mr-1.5" /> Reset Active Booklet
               </button>
 
               <button
                 onClick={handleResetAll}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-red-650 text-white hover:bg-red-700 text-xs font-bold transition-all shadow-lg shadow-red-500/15"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-red-700 text-white hover:bg-red-800 text-xs font-bold transition-all shadow-md cursor-pointer"
               >
                 <FiTrash2 size={14} className="mr-1.5" /> Wipe All & Restore Seeds
               </button>
             </div>
 
-            <div className="text-[10px] text-slate-455 dark:text-slate-500 leading-relaxed font-bold">
+            <div className="text-[10px] text-slate-500 leading-relaxed font-bold">
               Warning: Reset operations are permanent. Wiping all data destroys local drafts, booklet trackers, and templates, reverting the environment to clean starting defaults.
             </div>
           </div>

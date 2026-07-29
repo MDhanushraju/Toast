@@ -15,7 +15,7 @@ export default function FormInput({
   return (
     <div className={`space-y-1.5 ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
+        <label htmlFor={id} className="block text-xs font-black text-[#006094] dark:text-sky-300 uppercase tracking-wider font-montserrat">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -30,16 +30,16 @@ export default function FormInput({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         className={`
-          w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 text-slate-800 border transition-all placeholder-slate-400
-          dark:bg-slate-950 dark:text-slate-200 focus:outline-none
+          w-full px-4 py-3 text-sm font-bold rounded-2xl bg-white text-slate-900 border-2 transition-all placeholder-slate-400
+          dark:bg-[#0c1421] dark:text-white focus:outline-none shadow-xs
           ${error 
-            ? 'border-red-400 focus:ring-1 focus:ring-red-500 focus:border-red-500' 
-            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue'}
+            ? 'border-red-500 focus:ring-2 focus:ring-red-500' 
+            : 'border-[#e8ddd0] dark:border-slate-800 hover:border-[#006094] focus:ring-2 focus:ring-[#006094] focus:border-[#006094] dark:focus:ring-sky-400'}
         `}
         {...props}
       />
       {error && (
-        <p id={`${id}-error`} className="text-[10px] text-red-500 font-bold">
+        <p id={`${id}-error`} className="text-xs text-red-500 font-extrabold">
           {error.message || error}
         </p>
       )}

@@ -54,7 +54,7 @@ export default function PrintView() {
 
       {/* Printable Booklet Stack */}
       <div className="print-container max-w-[210mm] mx-auto bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 rounded-3xl p-0 overflow-hidden flex flex-col items-center">
-        
+
         {/* PAGE 1: COVER */}
         <section className="booklet-page bg-paper dark:bg-slate-900 w-full">
           <div className="h-full flex flex-col justify-between p-4">
@@ -85,7 +85,7 @@ export default function PrintView() {
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50">
                   <h4 className="font-outfit font-bold text-slate-805 dark:text-slate-200 text-xs mb-1">Use this for</h4>
                   <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal">
-                    Before demo planning, meeting arrangements, live execution notes, and outcomes capture after the meeting.
+                    Before planning, meeting arrangements, live execution notes, and outcomes capture after the meeting.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50">
@@ -117,11 +117,11 @@ export default function PrintView() {
                 {[
                   { num: '01', title: 'Cover Page', desc: 'Booklet title, District 228 name, owner references, description, and club logo placeholder.' },
                   { num: '02', title: 'Quick Reference', desc: 'Reference structure page highlighting booklet layout, mapping, and guidelines.' },
-                  { num: '03', title: 'Before Demo Meeting', desc: 'Checklists and member-filled logs specifying planning title, date, objective, and sign-offs.' },
-                  { num: '04', title: 'Arrangements Checklist', desc: 'Logistics tracker specifying script availability, talking points, materials, owner assignments, and venue notes.' },
-                  { num: '05', title: 'During Meeting Execution', desc: 'Focus checklist for live guest experience, speech timer tracker, role records, and real-time observation notes.' },
-                  { num: '06', title: 'Outcome After Meeting', desc: 'Evaluation parameters covering guest attendance details, chartering interest levels, action items, strengths, and areas of improvement.' },
-                  { num: '07', title: 'Demo Tracker Sheet', desc: 'Global tabular historical tracker log summarizing date, hosts, leads, outcomes, and coordinator comments.' },
+                  { num: '03', title: 'Before Meeting', desc: 'Checklists and member-filled logs specifying planning title, date, objective, and sign-offs.' },
+                  { num: '04', title: 'Meeting Arrangements', desc: 'Pre-meeting preparation checklist, venue logistics, script link, and equipment readiness.' },
+                  { num: '05', title: 'During Meeting Execution', desc: 'Live execution notes, guest attendance, agenda timetable, and action items.' },
+                  { num: '06', title: 'After Meeting Summary', desc: 'Outcomes, guest sign-ups, decision-maker sign-off, and chartering status.' },
+                  { num: '07', title: 'Meeting Tracker Sheet', desc: 'Global tabular historical tracker log summarizing date, hosts, leads, outcomes, and coordinator comments.' },
                 ].map(ref => (
                   <div key={ref.num} className="flex gap-4 p-3 border border-slate-105 dark:border-slate-850 rounded-xl bg-white/40">
                     <div className="w-10 h-10 shrink-0 bg-brand-blue/10 dark:bg-brand-blue/20 rounded-xl flex items-center justify-center font-bold text-brand-blue text-xs">
@@ -141,72 +141,62 @@ export default function PrintView() {
           </div>
         </section>
 
-        {/* PAGE 3: BEFORE DEMO MEETING */}
+        {/* PAGE 3: TOASTMASTERS DEMO MEETING AGENDA (Matching Image 2) */}
         <section className="booklet-page bg-paper dark:bg-slate-900 w-full">
-          <div className="h-full flex flex-col justify-between p-4">
+          <div className="h-full flex flex-col justify-between p-4 space-y-4">
             <div>
-              <h2 className="text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-6">
-                Before Demo Meeting
-              </h2>
-              
-              <div className="grid grid-cols-2 gap-8">
-                {/* Checkbox standards */}
-                <div className="space-y-4">
-                  <h3 className="font-outfit font-bold text-xs uppercase tracking-widest text-slate-455 dark:text-slate-550">Quality Standards</h3>
-                  <div className="space-y-3">
-                    {(p3.checklist || []).map(item => (
-                      <div key={item.id} className="flex items-start gap-3 p-3 border border-slate-105 dark:border-slate-850 rounded-xl bg-white/40">
-                        <span className="mt-0.5 font-bold text-brand-blue text-sm">
-                          {item.checked ? '☑' : '☐'}
-                        </span>
-                        <div>
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{item.label}</span>
-                          <p className="text-[10px] text-slate-400 leading-normal">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Form fields */}
-                <div className="space-y-4">
-                  <h3 className="font-outfit font-bold text-xs uppercase tracking-widest text-slate-455 dark:text-slate-550">Metadata Information</h3>
-                  <div className="space-y-4 p-4 border border-slate-105 dark:border-slate-850 rounded-2xl bg-white/40">
-                    <div>
-                      <span className="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Demo Title</span>
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-255 border-b border-dotted border-slate-300 pb-0.5 min-h-[1.5rem]">
-                        {p3.demoTitle}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Host Organization</span>
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-255 border-b border-dotted border-slate-300 pb-0.5 min-h-[1.5rem]">
-                        {p3.hostOrganization}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Date</span>
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-255 border-b border-dotted border-slate-300 pb-0.5 min-h-[1.5rem]">
-                        {p3.date}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Objective</span>
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-255 border-b border-dotted border-slate-300 pb-0.5 min-h-[1.5rem] leading-relaxed">
-                        {p3.objective}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Success Sign-off</span>
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-255 border-b border-dotted border-slate-300 pb-0.5 min-h-[1.5rem]">
-                        {p3.successSignoff}
-                      </div>
-                    </div>
-                  </div>
+              <div className="border-b-2 border-[#004165] dark:border-sky-900 pb-3 mb-4 text-center space-y-2">
+                <h2 className="text-xl font-outfit font-black text-[#004165] dark:text-slate-100 uppercase tracking-wide">
+                  TOASTMASTERS DEMO MEETING AGENDA
+                </h2>
+                <div className="border border-[#004165]/30 rounded-xl p-2 bg-[#FAF5EF] dark:bg-slate-950 text-xs font-bold text-[#781327] dark:text-rose-400">
+                  THEME OF THE DEMO MEETING: <span className="font-extrabold">{p3.meetingTheme || p3.demoTitle || 'Transform Your Communication & Leadership'}</span>
                 </div>
               </div>
+
+              {/* Official Table Matching Image 2 */}
+              <table className="w-full text-left border-collapse text-[11px] border-2 border-[#004165] rounded-xl overflow-hidden mb-4">
+                <thead>
+                  <tr className="bg-[#004165] text-white uppercase tracking-wider text-[10px]">
+                    <th className="p-2 font-black w-32 border-r border-[#005a8b]">TIME</th>
+                    <th className="p-2 font-black border-r border-[#005a8b]">AGENDA ITEM</th>
+                    <th className="p-2 font-black w-36 border-r border-[#005a8b]">ROLE</th>
+                    <th className="p-2 font-black w-36 border-r border-[#005a8b]">NAME OF ROLE TAKER</th>
+                    <th className="p-2 font-black w-28">CLUB</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(p3.agendaItems || []).map((item, idx) => (
+                    <tr key={item.id || idx} className="border-b border-slate-300 dark:border-slate-800 last:border-0 hover:bg-[#FAF5EF]/50">
+                      <td className="p-2 font-black text-[#781327] dark:text-rose-400 border-r border-slate-200 dark:border-slate-800 font-mono">
+                        {item.time || ''}
+                      </td>
+                      <td className="p-2 border-r border-slate-200 dark:border-slate-800">
+                        <div className="font-black text-[#004165] dark:text-sky-200">{item.slot}</div>
+                        {item.details && <div className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">{item.details}</div>}
+                      </td>
+                      <td className="p-2 font-extrabold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-800">
+                        {item.role || '—'}
+                      </td>
+                      <td className="p-2 font-extrabold text-[#006094] dark:text-sky-300 border-r border-slate-200 dark:border-slate-800">
+                        {item.speaker || '—'}
+                      </td>
+                      <td className="p-2 font-semibold text-slate-700 dark:text-slate-300">
+                        {item.club || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Bottom NOTES box matching Image 2 */}
+              <div className="border border-[#004165]/40 rounded-xl p-2.5 bg-[#FAF5EF] dark:bg-slate-950 text-xs font-medium text-slate-800 dark:text-slate-200 flex items-start gap-2">
+                <span className="font-black text-[#004165] uppercase shrink-0">NOTES:</span>
+                <span>{p3.agendaNotes || '1 Prepared Speaker | 1 Evaluator | TAG: Only Timer & Language Evaluator | 7 Table Topics Participants (First from Toastmasters)'}</span>
+              </div>
             </div>
-            <div className="text-right text-[10px] font-bold text-slate-400 pt-6 border-t border-slate-105 dark:border-slate-800 mt-12">
+
+            <div className="text-right text-[10px] font-bold text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-800">
               PAGE 3
             </div>
           </div>
@@ -380,12 +370,12 @@ export default function PrintView() {
           </div>
         </section>
 
-        {/* PAGE 7: DEMO TRACKER SHEET */}
+        {/* PAGE 7: MEETING TRACKER SHEET */}
         <section className="booklet-page bg-paper dark:bg-slate-900 w-full">
           <div className="h-full flex flex-col justify-between p-4">
             <div>
               <h2 className="text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-6">
-                Demo Tracker Sheet
+                Meeting Tracker Sheet
               </h2>
 
               <table className="w-full text-left border-collapse text-[10px] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden mb-6">

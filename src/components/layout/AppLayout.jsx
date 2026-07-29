@@ -33,16 +33,17 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      {/* Sidebar Panel */}
+    <div className="flex min-h-screen bg-[#FAF5EF] dark:bg-[#0b1320] transition-colors duration-300">
+      {/* Sidebar Panel - Wider 72 size (288px) */}
       <Sidebar />
 
-      {/* Main Panel Content */}
-      <div className="flex flex-col flex-1 min-h-screen lg:pl-64">
+      {/* Main Panel Content - Adjusted left padding to lg:pl-72 */}
+      <div className="flex flex-col flex-1 min-h-screen lg:pl-72">
         <Header />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col">
-          <div className="flex-1 max-w-5xl w-full mx-auto flex flex-col justify-start">
+        {/* Main Canvas occupying maximum length and width */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col bg-[#FAF5EF] dark:bg-[#0b1320] pb-16">
+          <div className="flex-1 w-full max-w-full flex flex-col justify-start min-h-[85vh]">
             <Outlet />
           </div>
           <Footer />

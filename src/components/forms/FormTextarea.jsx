@@ -19,7 +19,7 @@ export default function FormTextarea({
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-center justify-between">
         {label && (
-          <label htmlFor={id} className="block text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
+          <label htmlFor={id} className="block text-[10px] font-extrabold text-[#006094] dark:text-white uppercase tracking-widest font-montserrat">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
         )}
@@ -41,11 +41,11 @@ export default function FormTextarea({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         className={`
-          w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 text-slate-800 border transition-all placeholder-slate-400 leading-relaxed
-          dark:bg-slate-950 dark:text-slate-200 focus:outline-none
+          w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 text-slate-900 border transition-all placeholder-slate-400 leading-relaxed
+          dark:bg-[#0c1421] dark:text-slate-100 focus:outline-none
           ${error 
             ? 'border-red-400 focus:ring-1 focus:ring-red-500 focus:border-red-500' 
-            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 focus:ring-1 focus:ring-brand-blue focus:border-brand-blue'}
+            : 'border-[#e8ddd0] dark:border-slate-800 hover:border-[#006094]/40 focus:ring-1 focus:ring-[#006094] focus:border-[#006094] dark:focus:ring-white'}
         `}
         {...props}
       />

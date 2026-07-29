@@ -159,26 +159,26 @@ export default function Page5During() {
           <div className="space-y-6">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center no-print">
+            <div className="border-b border-[#e8ddd0] dark:border-slate-800 pb-3 flex justify-between items-center no-print">
               <div>
-                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-brand-navy dark:text-slate-100">
+                <h2 className="text-xl sm:text-2xl font-outfit font-extrabold text-[#772432] dark:text-white">
                   During Meeting Execution
                 </h2>
-                <p className="text-xs text-slate-405 font-semibold mt-0.5">
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
                   Monitor meeting timings, checklists, actions, and take notes.
                 </p>
               </div>
               <button 
                 onClick={handleClear}
-                className="px-3 py-1 bg-slate-50 dark:bg-slate-950 text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all"
+                className="px-3 py-1 bg-[#faf5ef] dark:bg-slate-900 text-[#772432] dark:text-rose-200 hover:bg-[#772432] hover:text-white border border-[#e8ddd0] dark:border-slate-800 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
               >
                 Clear Page
               </button>
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block pb-2 border-b-2 border-slate-900">
-              <h2 className="text-xl font-bold">During Meeting Execution</h2>
+            <div className="hidden print:block pb-2 border-b-2 border-[#772432]">
+              <h2 className="text-xl font-bold text-[#772432]">During Meeting Execution</h2>
               <p className="text-xs text-slate-650">District 228 Live Session Timings & Actions</p>
             </div>
 
@@ -189,8 +189,8 @@ export default function Page5During() {
                 
                 {/* Standards Checklist */}
                 <div className="space-y-3">
-                  <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                    <FiCheckSquare className="text-brand-blue" /> Execution Standards
+                  <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                    <FiCheckSquare className="text-[#004165]" /> Execution Standards
                   </h3>
                   <div className="space-y-2">
                     {[
@@ -213,27 +213,27 @@ export default function Page5During() {
 
                 {/* Stopwatch Assistant */}
                 <div className="space-y-3 no-print">
-                  <h3 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                    <FiClock className="text-gold" /> Timing Assistant
+                  <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                    <FiClock className="text-[#f2a900]" /> Timing Assistant
                   </h3>
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl p-5 flex flex-col items-center justify-center gap-4 shadow-inner">
-                    <div className="font-outfit font-extrabold text-3xl text-slate-850 dark:text-slate-100 tracking-wider">
+                  <div className="bg-[#004165] text-white border border-[#002b45] rounded-2xl p-5 flex flex-col items-center justify-center gap-4 shadow-md">
+                    <div className="font-outfit font-extrabold text-3xl text-white tracking-wider">
                       {formatTime(seconds)}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleStartPause}
-                        className={`p-2 rounded-full text-white ${timerRunning ? 'bg-amber-500 hover:bg-amber-600' : 'bg-brand-blue hover:bg-brand-blue/90'} transition-all`}
+                        className={`p-2 rounded-full text-[#772432] ${timerRunning ? 'bg-[#f2a900] hover:bg-[#d99700]' : 'bg-[#f2a900] hover:bg-[#d99700]'} transition-all cursor-pointer`}
                       >
                         {timerRunning ? <FiPause size={16} /> : <FiPlay size={16} />}
                       </button>
                       <button
                         onClick={handleResetTimer}
-                        className="p-2 rounded-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-655 transition-all"
+                        className="p-2 rounded-full bg-[#002b45] hover:bg-[#005580] text-white transition-all cursor-pointer"
                       >
                         <FiRotateCcw size={16} />
                       </button>
-                      <Button variant="primary" size="sm" onClick={handleRecordTime}>
+                      <Button variant="primary" size="sm" onClick={handleRecordTime} className="bg-[#772432] hover:bg-[#5e1c27] border-0">
                         Record to Row
                       </Button>
                     </div>
@@ -258,29 +258,29 @@ export default function Page5During() {
                 {/* Speaker timings table */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between no-print">
-                    <h3 className="font-outfit font-bold text-slate-855 dark:text-slate-200 text-xs flex items-center gap-1.5">
-                      <FiClock className="text-brand-blue" /> Speaker Timings Log
+                    <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                      <FiClock className="text-[#004165]" /> Speaker Timings Log
                     </h3>
                     <Button variant="secondary" size="xs" onClick={handleAddSpeaker}>
                       <FiPlus size={13} className="mr-1" /> Add Row
                     </Button>
                   </div>
 
-                  <div className="overflow-x-auto border border-slate-200 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-950/20 shadow-sm">
+                  <div className="overflow-x-auto border border-[#e8ddd0] dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] shadow-sm">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-850">
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300 w-10 text-center no-print">Select</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300">Speaker Name</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300">Role</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300 w-24">Time</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300 w-10 text-center no-print">Action</th>
+                        <tr className="bg-[#772432] text-white border-b border-[#5e1c27]">
+                          <th className="p-3 font-extrabold w-10 text-center no-print">Select</th>
+                          <th className="p-3 font-extrabold">Speaker Name</th>
+                          <th className="p-3 font-extrabold">Role</th>
+                          <th className="p-3 font-extrabold w-24">Time</th>
+                          <th className="p-3 font-extrabold w-10 text-center no-print">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {pageData.speakerTracking.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="p-6 text-center text-slate-400 font-semibold bg-slate-50/50 dark:bg-slate-950/20">
+                            <td colSpan="5" className="p-6 text-center text-slate-400 font-semibold bg-[#faf5ef]/50 dark:bg-slate-900/20">
                               No speakers logged.
                             </td>
                           </tr>
@@ -288,7 +288,7 @@ export default function Page5During() {
                           pageData.speakerTracking.map(sp => (
                             <tr 
                               key={sp.id} 
-                              className={`border-b border-slate-100 dark:border-slate-900 hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors last:border-0 ${selectedSpeakerId === sp.id ? 'bg-brand-blue/5 dark:bg-brand-blue/10 font-bold' : ''}`}
+                              className={`border-b border-[#e8ddd0]/60 dark:border-slate-800 hover:bg-[#faf5ef] dark:hover:bg-slate-900/50 transition-colors last:border-0 ${selectedSpeakerId === sp.id ? 'bg-[#faf5ef] font-bold border-l-4 border-l-[#772432]' : ''}`}
                             >
                               <td className="p-3 text-center no-print">
                                 <input
@@ -296,7 +296,7 @@ export default function Page5During() {
                                   name="active_speaker"
                                   checked={selectedSpeakerId === sp.id}
                                   onChange={() => setSelectedSpeakerId(sp.id)}
-                                  className="w-4 h-4 text-brand-blue focus:ring-brand-blue"
+                                  className="w-4 h-4 text-[#772432] focus:ring-[#772432] cursor-pointer"
                                 />
                               </td>
                               <td className="p-3">
@@ -305,7 +305,7 @@ export default function Page5During() {
                                   value={sp.speaker || ''}
                                   onChange={(e) => handleSpeakerChange(sp.id, 'speaker', e.target.value)}
                                   placeholder="e.g. Prashant"
-                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
                                 />
                               </td>
                               <td className="p-3">
@@ -314,7 +314,7 @@ export default function Page5During() {
                                   value={sp.role || ''}
                                   onChange={(e) => handleSpeakerChange(sp.id, 'role', e.target.value)}
                                   placeholder="e.g. Toastmaster"
-                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
                                 />
                               </td>
                               <td className="p-3">
@@ -323,13 +323,13 @@ export default function Page5During() {
                                   value={sp.time || ''}
                                   onChange={(e) => handleSpeakerChange(sp.id, 'time', e.target.value)}
                                   placeholder="05:30"
-                                  className="w-full bg-transparent font-mono font-bold text-slate-805 dark:text-slate-200 border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+                                  className="w-full bg-transparent font-mono font-bold text-[#772432] dark:text-[#f2a900] border-0 border-b border-transparent focus:border-[#772432] focus:outline-none"
                                 />
                               </td>
                               <td className="p-3 text-center no-print">
                                 <button
                                   onClick={() => handleDeleteSpeaker(sp.id)}
-                                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-[#faf5ef] dark:hover:bg-slate-900 rounded-lg transition-colors cursor-pointer"
                                 >
                                   <FiTrash2 size={13} />
                                 </button>
@@ -345,41 +345,41 @@ export default function Page5During() {
                 {/* Action Items tracker */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between no-print">
-                    <h3 className="font-outfit font-bold text-slate-855 dark:text-slate-200 text-xs flex items-center gap-1.5">
-                      <FiCompass className="text-gold" /> Follow-up Action Items
+                    <h3 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                      <FiCompass className="text-[#f2a900]" /> Follow-up Action Items
                     </h3>
                     <Button variant="secondary" size="xs" onClick={handleAddAction}>
                       <FiPlus size={13} className="mr-1" /> Add Action
                     </Button>
                   </div>
 
-                  <div className="overflow-x-auto border border-slate-200 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-950/20 shadow-sm">
+                  <div className="overflow-x-auto border border-[#e8ddd0] dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] shadow-sm">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-850">
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-350">Action Item Description</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-24">Owner</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-350 w-24">Status</th>
-                          <th className="p-3 font-bold text-slate-700 dark:text-slate-300 w-10 text-center no-print">Action</th>
+                        <tr className="bg-[#772432] text-white border-b border-[#5e1c27]">
+                          <th className="p-3 font-extrabold">Action Item Description</th>
+                          <th className="p-3 font-extrabold w-24">Owner</th>
+                          <th className="p-3 font-extrabold w-24">Status</th>
+                          <th className="p-3 font-extrabold w-10 text-center no-print">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {pageData.actionItems.length === 0 ? (
                           <tr>
-                            <td colSpan="4" className="p-6 text-center text-slate-400 font-semibold bg-slate-50/50 dark:bg-slate-950/20">
+                            <td colSpan="4" className="p-6 text-center text-slate-400 font-semibold bg-[#faf5ef]/50 dark:bg-slate-900/20">
                               No action items recorded.
                             </td>
                           </tr>
                         ) : (
                           pageData.actionItems.map(act => (
-                            <tr key={act.id} className="border-b border-slate-100 dark:border-slate-900 last:border-0 hover:bg-slate-50/30">
+                            <tr key={act.id} className="border-b border-[#e8ddd0]/60 dark:border-slate-800 last:border-0 hover:bg-[#faf5ef]">
                               <td className="p-3">
                                 <input
                                   type="text"
                                   value={act.action || ''}
                                   onChange={(e) => handleActionChange(act.id, 'action', e.target.value)}
                                   placeholder="e.g. Send brochures"
-                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
                                 />
                               </td>
                               <td className="p-3">
@@ -388,14 +388,14 @@ export default function Page5During() {
                                   value={act.owner || ''}
                                   onChange={(e) => handleActionChange(act.id, 'owner', e.target.value)}
                                   placeholder="Owner"
-                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-brand-blue/50 focus:outline-none"
+                                  className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#772432] focus:outline-none text-slate-800 dark:text-slate-200"
                                 />
                               </td>
                               <td className="p-3">
                                 <select
                                   value={act.status || 'Pending'}
                                   onChange={(e) => handleActionChange(act.id, 'status', e.target.value)}
-                                  className="bg-transparent border-0 border-b border-transparent focus:outline-none focus:border-brand-blue/50 cursor-pointer text-slate-750 dark:text-slate-300"
+                                  className="bg-transparent border-0 border-b border-transparent focus:outline-none focus:border-[#772432] cursor-pointer text-[#772432] dark:text-[#f2a900] font-bold"
                                 >
                                   <option value="Pending" className="dark:bg-slate-950">Pending</option>
                                   <option value="In Progress" className="dark:bg-slate-950">In Progress</option>
@@ -405,7 +405,7 @@ export default function Page5During() {
                               <td className="p-3 text-center no-print">
                                 <button
                                   onClick={() => handleDeleteAction(act.id)}
-                                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-[#faf5ef] dark:hover:bg-slate-900 rounded-lg transition-colors cursor-pointer"
                                 >
                                   <FiTrash2 size={13} />
                                 </button>
@@ -424,8 +424,8 @@ export default function Page5During() {
 
             {/* Live Observation Notes */}
             <div className="space-y-2 pt-2">
-              <h4 className="font-outfit font-bold text-slate-800 dark:text-slate-205 text-xs flex items-center gap-1.5">
-                <FiFileText className="text-brand-blue" /> Live observations / Notes
+              <h4 className="font-outfit font-extrabold text-[#772432] dark:text-[#f2a900] text-xs flex items-center gap-1.5">
+                <FiFileText className="text-[#004165]" /> Live observations / Notes
               </h4>
               <div className="hidden print:block dotted-notes min-h-[220px] text-xs">
                 {pageData.liveNotes}
@@ -435,7 +435,7 @@ export default function Page5During() {
                 onChange={(e) => handleFieldChange('liveNotes', e.target.value)}
                 placeholder="Log live comments, questions asked by guests, parts that generated maximum enthusiasm..."
                 rows={6}
-                className="w-full p-4 text-xs bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-200 border border-slate-200 dark:border-slate-850 rounded-2xl focus:outline-none focus:ring-1 focus:ring-brand-blue print:hidden"
+                className="w-full p-4 text-xs bg-white dark:bg-[#0c1421] text-slate-800 dark:text-slate-100 border border-[#e8ddd0] dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#772432] print:hidden"
               />
             </div>
 
