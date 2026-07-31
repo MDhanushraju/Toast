@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useBooklet } from '../context/BookletContext';
 import { FiChevronLeft, FiChevronRight, FiHome } from 'react-icons/fi';
 
 const SEGMENTS = [
@@ -8,15 +9,32 @@ const SEGMENTS = [
   { path: '/booklet/segment-3', label: 'After Meeting' }
 ];
 
-export default function PageNavigation() {
+export default function PageNavigation({ disabledNext = false, disabledNextReason = '' }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { activeBooklet, updateBooklet, showToast } = useBooklet();
 
   const currentIndex = SEGMENTS.findIndex(s => s.path === location.pathname);
   const safeIndex = currentIndex !== -1 ? currentIndex : 0;
 
   const prevSegment = SEGMENTS[safeIndex - 1];
   const nextSegment = SEGMENTS[safeIndex + 1];
+
+  const handleNextClick = () => {
+    if (disabledNext) {
+      if (showToast) showToast(disabledNextReason || "Please verify the page checkbox before proceeding!");
+      else alert(disabledNextReason || "Please verify the page checkbox before proceeding!");
+      return;
+    }
+
+    // Mark current segment completed on Next Page click
+    if (activeBooklet) {
+      const segmentKey = `segment${safeIndex + 1}Completed`;
+      updateBooklet(activeBooklet.id, { [segmentKey]: true });
+    }
+
+    if (nextSegment) navigate(nextSegment.path);
+  };
 
   return (
     <div className="mt-8 pt-4 border-t border-[#e8ddd0] dark:border-slate-800 no-print font-sans">
@@ -57,8 +75,12 @@ export default function PageNavigation() {
         <div>
           {nextSegment ? (
             <button
-              onClick={() => navigate(nextSegment.path)}
-              className="flex items-center gap-2 bg-[#781327] hover:bg-[#580d1b] text-white font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer border border-[#580d1b]"
+              onClick={handleNextClick}
+              className={`flex items-center gap-2 font-montserrat font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-all border ${
+                disabledNext 
+                  ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 opacity-70 cursor-not-allowed border-slate-300' 
+                  : 'bg-[#781327] hover:bg-[#580d1b] text-white shadow-sm cursor-pointer border-[#580d1b]'
+              }`}
             >
               <span>Next ({nextSegment.label})</span>
               <FiChevronRight size={18} />

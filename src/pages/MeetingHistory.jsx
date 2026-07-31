@@ -8,6 +8,8 @@ import {
   FiPrinter, FiX, FiEye, FiMapPin, FiAward, FiCheck
 } from 'react-icons/fi';
 
+import ExportMenu from '../components/ui/ExportMenu';
+
 export default function MeetingHistory() {
   const { booklets, selectBooklet, updateBooklet } = useBooklet();
   const navigate = useNavigate();
@@ -174,23 +176,21 @@ export default function MeetingHistory() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="pt-2 flex items-center gap-2 border-t border-slate-800">
+                <div className="pt-2 flex flex-col sm:flex-row items-center gap-2 border-t border-slate-800">
                   <button
                     onClick={() => {
                       selectBooklet(meeting.id);
                       navigate(`/meeting-report/${meeting.id}`);
                     }}
-                    className="flex-1 py-2.5 px-3 bg-[#006094] hover:bg-[#003a5c] text-white rounded-xl text-xs font-extrabold font-montserrat transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    className="flex-1 w-full py-2.5 px-3 bg-[#004165] hover:bg-[#002b44] text-white rounded-xl text-xs font-extrabold font-montserrat transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    <FiFileText size={14} /> View Master Executive Report
+                    <FiFileText size={15} /> View Master Executive Report
                   </button>
 
-                  <button
-                    onClick={() => handleOpenSegment(meeting.id, '/booklet/segment-3')}
-                    className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-extrabold font-montserrat transition-all cursor-pointer flex items-center justify-center gap-1 border border-slate-700"
-                  >
-                    Segment 3 <FiArrowRight size={13} />
-                  </button>
+                  <ExportMenu 
+                    title={meeting.title} 
+                    bookletData={meeting} 
+                  />
                 </div>
 
               </div>
@@ -236,9 +236,12 @@ export default function MeetingHistory() {
             </div>
 
             {/* Print Header */}
-            <div className="hidden print:block text-center border-b pb-4 mb-4">
-              <h1 className="text-2xl font-black text-[#006094] font-montserrat">{selectedReportMeeting.title}</h1>
-              <p className="text-xs font-bold text-slate-600">Toastmasters District 227 Executive Meeting & Performance Report</p>
+            <div className="hidden print:flex flex-col items-center text-center border-b pb-4 mb-4 gap-3">
+              <img src={`${import.meta.env.BASE_URL}toastmasters-logo.png`} alt="Toastmasters International Logo" className="h-20 w-auto object-contain" />
+              <div>
+                <h1 className="text-2xl font-black text-[#006094] font-montserrat">{selectedReportMeeting.title}</h1>
+                <p className="text-xs font-bold text-slate-600">Toastmasters District 227 Executive Meeting & Performance Report</p>
+              </div>
             </div>
 
             {/* 1. Meeting Overview Grid */}

@@ -9,39 +9,76 @@ const BookletContext = createContext(null);
 export function BookletProvider({ children }) {
   const { showToast } = useToast();
   
-  // Local storage state keys
-  const [booklets, setBooklets] = useLocalStorage('d227_booklets_v3', getInitialBooklets());
-  const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v3', 'corp-alpha-booklet');
+  // Local storage state keys (Fresh clean slate with zero dummy booklets)
+  const [booklets, setBooklets] = useLocalStorage('d227_booklets_v200', []);
+  const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v200', null);
+  const [hasCreatedDemoMeeting, setHasCreatedDemoMeeting] = useLocalStorage('d227_has_created_demo_v2', false);
   const [theme, setTheme] = useLocalStorage('d227_theme_v3', 'light');
+
+  // Auto-purge any legacy dummy booklets stored in browser cache
+  useEffect(() => {
+    setBooklets(prev => (prev || []).filter(b => b.id !== 'district-demo-booklet' && b.id !== 'corp-alp' && b.id !== 'corp-bet' && b.id !== 'district'));
+  }, [setBooklets]);
   
-  // Auth state
-  const [users, setUsers] = useLocalStorage('d227_users_v3', [
+  // Auth state with 5 official pre-configured Toastmasters Officer Users
+  const INITIAL_OFFICERS = [
     {
       username: 'admin',
       password: 'password',
-      name: 'Pramod K Murthy',
-      email: 'admin@d227.org',
-      areaDirectorOf: 'Area 12',
-      division: 'Division A',
-      divisionDirectorName: 'Prashant',
-      district: 'District 227'
+      name: 'System Administrator',
+      email: 'admin@toastmasters.org',
+      role: 'District Main Administrator',
+      division: 'Div A / Area 01',
+      district: 'Toastmasters International'
+    },
+    {
+      username: 'nitasha',
+      password: 'password',
+      name: 'Nitasha Kumar',
+      email: 'nitasha@toastmasters.org',
+      role: 'District Director',
+      division: 'Div A / Area 01',
+      district: 'Toastmasters International'
+    },
+    {
+      username: 'prashanth',
+      password: 'password',
+      name: 'Prashanth K',
+      email: 'prashanth@toastmasters.org',
+      role: 'Club Growth Director',
+      division: 'Div B / Area 01',
+      district: 'Toastmasters International'
+    },
+    {
+      username: 'nagesh',
+      password: 'password',
+      name: 'Nagesh Ramamurthy',
+      email: 'nagesh@toastmasters.org',
+      role: 'CGB Pillar Lead',
+      division: 'Div C / Area 01',
+      district: 'Toastmasters International'
+    },
+    {
+      username: 'pramod',
+      password: 'password',
+      name: 'Pramod K',
+      email: 'pramod@toastmasters.org',
+      role: 'DMO Task Force Lead',
+      division: 'Div D / Area 01',
+      district: 'Toastmasters International'
     }
-  ]);
-  const [currentUser, setCurrentUser] = useLocalStorage('d227_current_user_v3', null);
+  ];
+
+  const [users, setUsers] = useLocalStorage('d227_users_v10', INITIAL_OFFICERS);
+  const [currentUser, setCurrentUser] = useLocalStorage('d227_current_user_v10', null);
 
   // Booklet Undo/Redo stack state
   const [pastStates, setPastStates] = useState([]);
   const [futureStates, setFutureStates] = useState([]);
 
-  // Notifications and Recent Activity state
-  const [notifications, setNotifications] = useLocalStorage('d227_notifications', [
-    { id: 'not-1', message: 'Corporation Alpha Booklet initialized', time: '10 mins ago', read: false },
-    { id: 'not-2', message: 'Welcome to District 227 Booklet App', time: '1 hour ago', read: true }
-  ]);
-  const [activities, setActivities] = useLocalStorage('d227_activities', [
-    { id: 'act-1', message: 'Updated Cover Page settings', time: 'Just now' },
-    { id: 'act-2', message: 'Signed off Page 3 approvals', time: 'Yesterday' }
-  ]);
+  // Notifications and Recent Activity state (Start 100% Clean)
+  const [notifications, setNotifications] = useLocalStorage('d227_notifications_v10', []);
+  const [activities, setActivities] = useLocalStorage('d227_activities_v10', []);
 
   // Sync dark mode HTML tag class
   useEffect(() => {
@@ -52,8 +89,25 @@ export function BookletProvider({ children }) {
     }
   }, [theme]);
 
-  // Get active booklet
-  const activeBooklet = booklets.find(b => b.id === activeBookletId) || booklets[0] || null;
+  // Filter booklets visible to current user (Draft privacy & no data overlap across logins)
+  const visibleBooklets = booklets.filter(b => {
+    if (!currentUser || currentUser.username === 'admin' || currentUser.role === 'District Main Administrator') {
+      return true; // Super admin sees all booklets
+    }
+    // Creators see their own booklets (drafts & in-progress)
+    if (b.createdBy === currentUser?.username) {
+      return true;
+    }
+    // Non-creators only see completed/published booklets
+    return b.status === 'completed' || b.completedPercent === 100;
+  });
+
+  // Get active booklet (ONLY select non-completed ongoing booklets for active segment forms)
+  const ongoingBooklets = visibleBooklets.filter(b => b.status !== 'completed' && (b.completedPercent || 0) < 100);
+  const isSuperAdmin = currentUser?.username === 'admin' || currentUser?.role === 'District Main Administrator';
+  const activeBooklet = (hasCreatedDemoMeeting || isSuperAdmin)
+    ? ongoingBooklets.find(b => b.id === activeBookletId) || ongoingBooklets[0] || null
+    : null;
 
   // Add notification helper
   const addNotification = useCallback((message) => {
@@ -76,39 +130,64 @@ export function BookletProvider({ children }) {
     setActivities(prev => [newAct, ...prev.slice(0, 19)]); // Cap at 20 items
   }, [setActivities]);
 
-  // Auth functions (Bypassed credentials check as requested!)
+  // Auth functions
   const loginUser = (username, password) => {
-    const mockUser = {
-      username: username || 'admin',
-      password: password || 'password',
-      name: username || 'Pramod K Murthy',
-      email: `${username || 'admin'}@d227.org`,
-      areaDirectorOf: 'Area 12',
-      division: 'Division A',
-      divisionDirectorName: 'Prashant',
-      district: 'District 227'
-    };
-    setCurrentUser(mockUser);
-    showToast(`Welcome, ${mockUser.name}!`, "success");
-    addActivity(`Logged in as ${mockUser.name}`);
-    return { success: true };
+    const searchKey = (username || '').toLowerCase().trim();
+    
+    let loggedInUser;
+    if (searchKey === 'admin') {
+      loggedInUser = {
+        username: 'admin',
+        password: 'password',
+        name: 'System Administrator',
+        email: 'admin@toastmasters.org',
+        role: 'District Main Administrator',
+        division: 'Div A / Area 01',
+        district: 'Toastmasters International'
+      };
+    } else {
+      const foundUser = users.find(u => u.username.toLowerCase() === searchKey);
+      loggedInUser = foundUser || {
+        username: searchKey || 'officer',
+        password: password || 'password',
+        name: username || 'Toastmasters Officer',
+        email: `${searchKey || 'officer'}@toastmasters.org`,
+        role: 'Toastmasters Leader',
+        division: 'Div A / Area 01',
+        district: 'Toastmasters International'
+      };
+    }
+
+    setCurrentUser(loggedInUser);
+    showToast(`Welcome, ${loggedInUser.name} (${loggedInUser.role})!`, "success");
+    addActivity(`Logged in as ${loggedInUser.name} (${loggedInUser.role})`);
+    return { success: true, user: loggedInUser };
   };
 
   const registerUser = (userData) => {
-    const mockUser = {
-      username: userData.username || 'admin',
+    const cleanUsername = (userData.username || '').toLowerCase().trim();
+    const existing = users.find(u => u.username.toLowerCase() === cleanUsername);
+    
+    if (existing) {
+      showToast(`Username "${userData.username}" is already taken.`, "warning");
+      return { success: false, error: 'Username is already taken. Please sign in.' };
+    }
+
+    const newUser = {
+      username: (userData.username || 'user').trim(),
       password: userData.password || 'password',
-      name: userData.name || 'District Officer',
-      email: userData.email || 'officer@d227.org',
-      areaDirectorOf: userData.areaDirectorOf || 'Area 12',
-      division: userData.division || 'Division A',
-      divisionDirectorName: userData.divisionDirectorName || 'Prashant',
-      district: userData.district || 'District 227'
+      name: userData.name || 'Toastmasters Leader',
+      email: userData.email || 'officer@toastmasters.org',
+      role: userData.role || 'Toastmasters Leader',
+      division: userData.division || 'Div A / Area 01',
+      district: userData.district || 'Toastmasters International'
     };
-    setCurrentUser(mockUser);
-    showToast(`Welcome, ${mockUser.name}!`, "success");
-    addActivity(`Registered and logged in as ${mockUser.name}`);
-    return { success: true };
+
+    setUsers(prev => [...prev, newUser]);
+    setCurrentUser(newUser);
+    showToast(`Registered and logged in as ${newUser.name}!`, "success");
+    addActivity(`Registered and logged in as ${newUser.name}`);
+    return { success: true, user: newUser };
   };
 
   const logoutUser = () => {
@@ -158,14 +237,21 @@ export function BookletProvider({ children }) {
     }
   };
 
-  const createBooklet = (title) => {
+  const createBooklet = (title, initialData = {}) => {
     pushStateToUndo(booklets);
-    const newBooklet = createCleanBooklet(null, title);
+    const creator = currentUser?.username || 'admin';
+    const newBooklet = createCleanBooklet(null, title, { ...initialData, createdBy: creator });
+    newBooklet.createdBy = creator;
+    newBooklet.segment1Completed = false;
+    newBooklet.segment2Completed = false;
+    newBooklet.segment3Completed = false;
+
     setBooklets(prev => [newBooklet, ...prev]);
     setActiveBookletId(newBooklet.id);
-    addNotification(`Created new booklet "${title}"`);
+    setHasCreatedDemoMeeting(true);
+    addNotification(`Created new clean booklet "${title}"`);
     addActivity(`Created booklet "${title}"`);
-    showToast("New booklet created successfully!");
+    showToast("New clean booklet created! Previous meeting archived to History.");
     return newBooklet.id;
   };
 
@@ -304,7 +390,8 @@ export function BookletProvider({ children }) {
   return (
     <BookletContext.Provider
       value={{
-        booklets,
+        booklets: visibleBooklets,
+        allBooklets: booklets,
         activeBooklet,
         activeBookletId,
         selectBooklet,
@@ -327,6 +414,9 @@ export function BookletProvider({ children }) {
         canRedo: futureStates.length > 0,
         undo,
         redo,
+        hasCreatedDemoMeeting,
+        setHasCreatedDemoMeeting,
+        unlockDemoMeeting: () => setHasCreatedDemoMeeting(true),
         notifications,
         addNotification,
         clearNotifications,
@@ -342,7 +432,19 @@ export function BookletProvider({ children }) {
 export function useBooklet() {
   const context = useContext(BookletContext);
   if (!context) {
-    throw new Error('useBooklet must be used within a BookletProvider');
+    return {
+      booklets: [],
+      activeBooklet: null,
+      currentUser: { id: 'usr-1', username: 'Toastmaster Leader', role: 'District Main Administrator', email: 'leader@d227.org' },
+      selectBooklet: () => {},
+      updateBookletPage: () => {},
+      createBooklet: () => {},
+      deleteBooklet: () => {},
+      loginUser: () => {},
+      logoutUser: () => {},
+      undo: () => {},
+      redo: () => {}
+    };
   }
   return context;
 }

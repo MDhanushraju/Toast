@@ -1,42 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-export default function ToastmastersLogo({ district = "DISTRICT 227", size = "md", className = "" }) {
-  const isSmall = size === "sm";
+export default function ToastmastersLogo({ 
+  district = "TOASTMASTERS", 
+  subtitle = "INTERNATIONAL", 
+  size = "md", 
+  showSubtitle = true,
+  showText = true,
+  className = "" 
+}) {
+  const [imgError, setImgError] = useState(true);
+
+  const sizeClasses = {
+    sm: "w-9 h-9",
+    md: "w-11 h-11",
+    lg: "w-14 h-14"
+  };
+
+  // If passed "District 227", override to TOASTMASTERS INTERNATIONAL as requested
+  const displayDistrict = district === "District 227" ? "TOASTMASTERS" : district;
+  const displaySubtitle = subtitle === "CLUB GROWTH DASHBOARD" ? "INTERNATIONAL" : subtitle;
 
   return (
-    <div className={`bg-[#006094] border border-white/20 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-lg select-none ${className}`}>
-      {/* Toastmasters Emblem / Globe Logo */}
-      <div className="relative flex items-center justify-center mb-1">
-        <svg 
-          viewBox="0 0 100 100" 
-          className={isSmall ? "w-10 h-10" : "w-16 h-16"}
-        >
-          {/* Outer Ring */}
-          <circle cx="50" cy="50" r="46" fill="none" stroke="#FFFFFF" strokeWidth="2.5" />
-          <circle cx="50" cy="50" r="43" fill="#006094" stroke="#FFFFFF" strokeWidth="2" />
-          
-          {/* Globe Lines */}
-          <circle cx="50" cy="50" r="38" fill="none" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.9" />
-          <ellipse cx="50" cy="50" rx="38" ry="16" fill="none" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.9" />
-          <ellipse cx="50" cy="50" rx="20" ry="38" fill="none" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.9" />
-          <line x1="12" y1="50" x2="88" y2="50" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.9" />
-          <line x1="50" y1="12" x2="50" y2="88" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.9" />
-          
-          {/* Wordmark Banner */}
-          <rect x="5" y="40" width="90" height="20" fill="#FFFFFF" rx="2" stroke="#006094" strokeWidth="1.5" />
-          <text x="50" y="49" textAnchor="middle" fill="#006094" fontSize="7.5" fontWeight="900" fontFamily="sans-serif" letterSpacing="0.5">
-            TOASTMASTERS
-          </text>
-          <text x="50" y="56" textAnchor="middle" fill="#003a5c" fontSize="5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.8">
-            INTERNATIONAL
-          </text>
-        </svg>
+    <div className={`flex items-center gap-3 select-none min-w-0 ${className}`}>
+      {/* Official Toastmasters Globe Emblem Badge */}
+      <div className={`${sizeClasses[size] || "w-11 h-11"} bg-white rounded-xl p-0.5 flex items-center justify-center shadow-md shrink-0 border border-slate-200 overflow-hidden`}>
+        {!imgError ? (
+          <img 
+            src={`${import.meta.env.BASE_URL}toastmasters-logo.png`} 
+            alt="Toastmasters International Logo" 
+            className="w-full h-full object-contain"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#006094" stroke="#781327" strokeWidth="3" />
+            <circle cx="50" cy="50" r="42" fill="#006094" stroke="#F5C027" strokeWidth="1.5" />
+            <circle cx="50" cy="50" r="37" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.9" />
+            <ellipse cx="50" cy="50" rx="37" ry="15" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.9" />
+            <ellipse cx="50" cy="50" rx="18" ry="37" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.9" />
+            <line x1="13" y1="50" x2="87" y2="50" stroke="#FFFFFF" strokeWidth="1" opacity="0.9" />
+            <line x1="50" y1="13" x2="50" y2="87" stroke="#FFFFFF" strokeWidth="1" opacity="0.9" />
+            <rect x="5" y="38" width="90" height="24" fill="#FFFFFF" rx="2" stroke="#781327" strokeWidth="1.5" />
+            <text x="50" y="49" textAnchor="middle" fill="#004165" fontSize="7.5" fontWeight="900" fontFamily="Montserrat, Inter, sans-serif" letterSpacing="0.5">
+              TOASTMASTERS
+            </text>
+            <text x="50" y="57" textAnchor="middle" fill="#781327" fontSize="4.8" fontWeight="800" fontFamily="Montserrat, Inter, sans-serif" letterSpacing="0.7">
+              INTERNATIONAL
+            </text>
+          </svg>
+        )}
       </div>
 
-      {/* District Label */}
-      <span className="font-outfit font-extrabold text-white uppercase tracking-widest leading-tight text-xs sm:text-sm">
-        {district}
-      </span>
+      {/* TOASTMASTERS INTERNATIONAL Title Lockup */}
+      {showText && (
+        <div className="text-left leading-tight">
+          <h2 className="text-xl font-extrabold text-white font-montserrat tracking-tight uppercase">
+            {displayDistrict}
+          </h2>
+          {showSubtitle && (
+            <span className="text-[10px] sm:text-[11px] font-bold text-white/80 uppercase tracking-wider block font-montserrat mt-0.5">
+              {displaySubtitle}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

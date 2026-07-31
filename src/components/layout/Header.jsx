@@ -42,20 +42,10 @@ export default function Header() {
   });
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between min-h-[96px] py-6 px-10 bg-[#781327] text-white border-b-2 border-[#580d1b] shadow-xl no-print font-sans transition-all">
-      {/* Toastmasters Logo & District Brand Lockup - Taller & Larger Typography */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-white rounded-2xl p-1.5 flex items-center justify-center shadow-md shrink-0">
-          <ToastmastersLogo district="" size="sm" className="bg-transparent border-0 shadow-none p-0" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="text-[10px] font-black text-white/90 uppercase tracking-widest block font-montserrat leading-tight">
-            TOASTMASTERS INTERNATIONAL
-          </span>
-          <h1 className="text-lg sm:text-xl font-black font-montserrat text-white uppercase tracking-wider leading-tight mt-0.5">
-            DISTRICT 227
-          </h1>
-        </div>
+    <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between min-h-[96px] py-4 px-6 md:px-10 bg-[#781327] text-white border-b-2 border-[#580d1b] shadow-xl no-print font-sans transition-all gap-y-3">
+      {/* Toastmasters Logo & District Brand Lockup - Single Clean Lockup */}
+      <div className="flex items-center gap-3 min-w-0">
+        <ToastmastersLogo district="District 227" subtitle="CLUB GROWTH DASHBOARD" size="sm" className="min-w-0" />
       </div>
 
       {/* Right Actions: Minimal & Clean with Taller Touch Targets */}
@@ -114,13 +104,13 @@ export default function Header() {
         )}
 
         {/* Clean Profile Badge */}
-        <div className="flex items-center gap-3.5 border-l border-white/25 pl-5">
+        <div className="flex items-center gap-3.5 border-l border-white/25 pl-5 min-w-0">
           <div className="w-10 h-10 rounded-full bg-white text-[#781327] flex items-center justify-center font-black text-sm shadow-md shrink-0">
-            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'P'}
+            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'S'}
           </div>
-          <div className="hidden xl:block text-left leading-tight">
-            <div className="text-xs sm:text-sm font-black text-white font-montserrat">{currentUser?.name || 'Pramod K Murthy'}</div>
-            <span className="text-[10px] text-white/80 font-bold block">{currentUser?.district || 'District 227'}</span>
+          <div className="hidden xl:flex flex-col text-left leading-tight min-w-0">
+            <div className="text-xs sm:text-sm font-black text-white font-montserrat truncate">{currentUser?.name || 'System Administrator'}</div>
+            <span className="text-[10px] text-white/80 font-bold block truncate">{currentUser?.district || 'District 227'}</span>
           </div>
         </div>
       </div>

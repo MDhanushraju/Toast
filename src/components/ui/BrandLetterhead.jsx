@@ -17,7 +17,7 @@ export default function BrandLetterhead({
         {/* District Lockup */}
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-white rounded-xl p-1 flex items-center justify-center shadow-xs shrink-0">
-            <ToastmastersLogo district="" size="sm" className="bg-transparent border-0 shadow-none p-0" />
+            <ToastmastersLogo showText={false} size="sm" className="bg-transparent border-0 shadow-none p-0" />
           </div>
           <div>
             <span className="text-[10px] font-black uppercase tracking-widest block text-white/80 font-montserrat leading-tight">

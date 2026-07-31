@@ -37,8 +37,8 @@ export default function AppLayout() {
       {/* Sidebar Panel - Wider 72 size (288px) */}
       <Sidebar />
 
-      {/* Main Panel Content - Adjusted left padding to lg:pl-72 */}
-      <div className="flex flex-col flex-1 min-h-screen lg:pl-72">
+      {/* Main Panel Content - Adjusted left padding to 20% (lg:pl-[20%]) */}
+      <div className="flex flex-col flex-1 min-h-screen lg:pl-[20%]">
         <Header />
 
         {/* Main Canvas occupying maximum length and width */}

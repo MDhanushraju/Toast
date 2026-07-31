@@ -5,6 +5,7 @@ import { ToastProvider } from './context/ToastContext';
 import AppLayout from './components/layout/AppLayout';
 import Dashboard from './pages/Dashboard';
 import CurrentMeetings from './pages/CurrentMeetings';
+import UpcomingMeetings from './pages/UpcomingMeetings';
 import MeetingHistory from './pages/MeetingHistory';
 import ContactsDirectory from './pages/ContactsDirectory';
 import Segment1Before from './pages/Segment1Before';
@@ -18,6 +19,7 @@ import CertificateGenerator from './pages/CertificateGenerator';
 import Settings from './pages/Settings';
 import PrintView from './pages/PrintView';
 import FullMeetingReport from './pages/FullMeetingReport';
+import GuestSignup from './pages/GuestSignup';
 import Auth from './pages/Auth';
 
 export default function App() {
@@ -32,6 +34,7 @@ export default function App() {
               
               {/* Dedicated Full Pages */}
               <Route path="current-meetings" element={<CurrentMeetings />} />
+              <Route path="upcoming-meetings" element={<UpcomingMeetings />} />
               <Route path="meeting-history" element={<MeetingHistory />} />
               <Route path="contacts" element={<ContactsDirectory />} />
 
@@ -43,6 +46,7 @@ export default function App() {
               <Route path="certificates" element={<CertificateGenerator />} />
               <Route path="meeting-report" element={<FullMeetingReport />} />
               <Route path="meeting-report/:id" element={<FullMeetingReport />} />
+              <Route path="guest-signup" element={<GuestSignup />} />
 
               {/* Simplified 3 Segments */}
               <Route path="booklet/segment-1" element={<Segment1Before />} />

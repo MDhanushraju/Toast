@@ -23,7 +23,8 @@ import {
 export default function Dashboard() {
   const { 
     booklets, activeBooklet, selectBooklet, createBooklet, deleteBooklet, 
-    duplicateBooklet, activities, updateBookletPage, exportBookletsJSON, importBookletsJSON 
+    duplicateBooklet, activities, updateBookletPage, exportBookletsJSON, importBookletsJSON,
+    unlockDemoMeeting
   } = useBooklet();
   const navigate = useNavigate();
   
@@ -70,6 +71,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (newTitle.trim() === '') return;
     const newId = createBooklet(newTitle);
+    unlockDemoMeeting();
     setNewTitle('');
     setShowCreateModal(false);
     navigate('/booklet/segment-1');
@@ -149,7 +151,7 @@ export default function Dashboard() {
             className="bg-[#781327] hover:bg-[#580d1b] text-white font-extrabold border-0 shadow-md cursor-pointer font-montserrat flex items-center gap-1.5 text-xs"
             onClick={() => setShowCreateModal(true)}
           >
-            <FiPlus size={15} /> Start New Booklet
+            <FiPlus size={15} /> Create New Demo Meeting
           </Button>
           <button
             onClick={exportBookletsJSON}
@@ -279,7 +281,7 @@ export default function Dashboard() {
               <Button
                 variant="primary"
                 size="sm"
-                className="bg-[#006094] hover:bg-[#003a5c] text-white border-0 font-montserrat font-extrabold shadow-xs"
+                className="bg-[#004165] hover:bg-[#002b44] text-white border-0 font-montserrat font-extrabold shadow-xs"
                 onClick={() => navigate('/booklet/segment-1')}
               >
                 Before Meeting
@@ -292,17 +294,77 @@ export default function Dashboard() {
               >
                 During Meeting Live
               </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(`Are you sure you want to cancel and remove "${activeBooklet.title}"?`)) {
+                    deleteBooklet(activeBooklet.id);
+                  }
+                }}
+                className="p-2 bg-rose-600/80 hover:bg-rose-700 text-white rounded-xl text-xs font-montserrat font-bold cursor-pointer transition-all border border-rose-500/50 shadow-xs flex items-center gap-1"
+                title="Cancel / Delete Active Meeting Session"
+              >
+                <FiTrash2 size={14} />
+                <span className="hidden sm:inline">Cancel Session</span>
+              </button>
             </div>
           </div>
         </div>
       ) : null}
 
-      {/* 📊 Executive Analytics & Visual Performance Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <AttendanceChart booklets={booklets} />
-        <TimingAccuracyGauge activeBooklet={activeBooklet} />
-        <CharteringReadinessMetrics booklets={booklets} />
+      {/* 🚀 Quick Launch Operations Hub */}
+      <div className="bg-white dark:bg-[#121e2d] border-2 border-[#006094]/30 dark:border-sky-900 rounded-3xl p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between border-b border-[#006094]/20 pb-3">
+          <div className="flex items-center gap-2.5">
+            <FiZap className="text-[#781327] dark:text-rose-400" size={20} />
+            <h3 className="font-montserrat font-black text-base text-[#006094] dark:text-white">
+              Toastmasters Quick Launch Operations Hub
+            </h3>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-wider bg-[#E6F0F6] text-[#006094] dark:bg-sky-950 dark:text-sky-300 px-3 py-1 rounded-full font-montserrat">
+            One-Click Workflows
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          {/* Quick Action 3: Master Reports */}
+          <button
+            onClick={() => {
+              if (activeBooklet) navigate(`/meeting-report/${activeBooklet.id}`);
+              else navigate('/meeting-report');
+            }}
+            className="p-4 bg-[#FAF5EF] dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-2xl hover:border-[#781327] transition-all text-left group cursor-pointer space-y-2"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#781327] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <FiFileText size={20} />
+            </div>
+            <div>
+              <div className="font-montserrat font-black text-xs text-slate-900 dark:text-white">Master Executive Report</div>
+              <div className="text-[11px] text-slate-500 font-semibold mt-0.5">View printable 3-segment report</div>
+            </div>
+          </button>
+
+          {/* Quick Action 4: Official Manual Download */}
+          <a
+            href="https://ccdn.toastmasters.org//medias/files/pathways/toastmaster-wears-many-hats/1167d-a-toastmaster-wears-many-hats.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 bg-[#E6F0F6]/50 dark:bg-slate-900 border border-[#006094]/20 dark:border-slate-800 rounded-2xl hover:border-[#006094] transition-all text-left group cursor-pointer space-y-2 block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#006094] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <FiDownload size={20} />
+            </div>
+            <div>
+              <div className="font-montserrat font-black text-xs text-slate-900 dark:text-white">Official Member Manual</div>
+              <div className="text-[11px] text-slate-500 font-semibold mt-0.5">Download Toastmasters PDF guide</div>
+            </div>
+          </a>
+
+        </div>
       </div>
+
+
 
       {/* 📅 Compact Interactive Meeting Tracker Calendar */}
       <div className="bg-white dark:bg-[#121e2d] border border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
@@ -400,6 +462,92 @@ export default function Dashboard() {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* 📋 Recent Meeting Booklets Table */}
+      <div className="bg-white dark:bg-[#121e2d] border border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-[#f3ebe1] dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <FiGrid size={18} className="text-[#006094]" />
+            <h3 className="font-montserrat font-extrabold text-base text-[#006094] dark:text-white">
+              Recent Meeting Booklets & Direct Operations
+            </h3>
+          </div>
+          <span className="text-[10px] font-bold text-slate-500 font-montserrat">
+            Showing {Math.min(booklets.length, 5)} of {booklets.length} Booklets
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-[#e8ddd0] dark:border-slate-800 text-[10px] uppercase font-montserrat font-black text-slate-400">
+                <th className="py-2.5 px-3">Title</th>
+                <th className="py-2.5 px-3">Host Organization</th>
+                <th className="py-2.5 px-3">Meeting Date</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3 text-right">Quick Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#f3ebe1] dark:divide-slate-800 font-semibold">
+              {booklets.slice(0, 5).map(b => (
+                <tr key={b.id} className="hover:bg-[#E6F0F6]/30 dark:hover:bg-slate-900/50 transition-colors">
+                  <td className="py-3 px-3">
+                    <span className="font-montserrat font-extrabold text-slate-900 dark:text-white block">
+                      {b.title}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-normal">ID: {b.id.substring(0, 8)}</span>
+                  </td>
+                  <td className="py-3 px-3 text-slate-600 dark:text-slate-300">
+                    {b.page3?.hostOrganization || 'District 227'}
+                  </td>
+                  <td className="py-3 px-3 text-slate-600 dark:text-slate-300">
+                    {b.page3?.date || 'Unscheduled'}
+                  </td>
+                  <td className="py-3 px-3">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase font-montserrat ${
+                      b.status === 'completed' || b.completedPercent === 100
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                        : b.status === 'ongoing'
+                        ? 'bg-rose-100 text-[#781327] dark:bg-rose-950 dark:text-rose-300'
+                        : 'bg-[#E6F0F6] text-[#006094] dark:bg-blue-950 dark:text-sky-300'
+                    }`}>
+                      {b.status || 'Upcoming'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => {
+                          selectBooklet(b.id);
+                          navigate('/booklet/segment-1');
+                        }}
+                        className="px-2.5 py-1 bg-[#006094] text-white rounded-lg text-[10px] font-extrabold hover:bg-[#003a5c] transition-all cursor-pointer font-montserrat"
+                      >
+                        Agenda
+                      </button>
+                      <button
+                        onClick={() => {
+                          selectBooklet(b.id);
+                          navigate('/booklet/segment-2');
+                        }}
+                        className="px-2.5 py-1 bg-[#781327] text-white rounded-lg text-[10px] font-extrabold hover:bg-[#580d1b] transition-all cursor-pointer font-montserrat"
+                      >
+                        Live Timer
+                      </button>
+                      <button
+                        onClick={() => navigate(`/meeting-report/${b.id}`)}
+                        className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg text-[10px] font-extrabold hover:bg-slate-200 transition-all cursor-pointer font-montserrat"
+                      >
+                        Report
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

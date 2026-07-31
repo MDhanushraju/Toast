@@ -33,3 +33,34 @@ export const DEFAULT_DISTRICT_CONTACTS = [
 
 export const DISTRICT_DIVISIONS = ['Division A', 'Division B', 'Division C', 'Division D', 'District 227 HQ'];
 export const DISTRICT_LIST = ['District 227', 'District 120', 'District 92', 'District 82', 'District 41'];
+
+export const DIVISION_AREA_OPTIONS = [
+  "Div A / Area 01",
+  "Div A / Area 02",
+  "Div A / Area 03",
+  "Div A / Area 04",
+  "Div B / Area 01",
+  "Div B / Area 02",
+  "Div B / Area 03",
+  "Div B / Area 04",
+  "Div C / Area 01",
+  "Div C / Area 02",
+  "Div C / Area 03",
+  "Div C / Area 04",
+  "Div D / Area 01",
+  "Div D / Area 02",
+  "Div D / Area 03",
+  "Div D / Area 04",
+  "Div E / Area 01",
+  "Div E / Area 02",
+  "Div E / Area 03",
+  "Div E / Area 04",
+  "Div F / Area 01",
+  "Div F / Area 02",
+  "Div F / Area 03",
+  "Div F / Area 04",
+  "Div G / Area 01",
+  "Div G / Area 02",
+  "Div G / Area 03",
+  "Div G / Area 04"
+];

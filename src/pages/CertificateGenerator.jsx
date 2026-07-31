@@ -11,7 +11,7 @@ export default function CertificateGenerator() {
   const [recipientName, setRecipientName] = useState('TM Anjali Jha');
   const [awardCategory, setAwardCategory] = useState('Best Speaker');
   const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split('T')[0]);
-  const [presenterName, setPresenterName] = useState('Pramod K Murthy, D227 Leadership');
+  const [presenterName, setPresenterName] = useState('System Administrator, D227 Leadership');
 
   const handlePrintCertificate = () => {
     window.print();

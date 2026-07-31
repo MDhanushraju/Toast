@@ -6,12 +6,12 @@ import FormTextarea from '../components/forms/FormTextarea';
 import Button from '../components/ui/Button';
 import { 
   FiClock, FiPlay, FiPause, FiRotateCcw, FiPlus, 
-  FiTrash2, FiMapPin, FiCpu, FiCompass, FiFileText, FiRefreshCw 
+  FiTrash2, FiMapPin, FiCpu, FiCompass, FiFileText, FiRefreshCw, FiCheckCircle
 } from 'react-icons/fi';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Segment2During() {
-  const { activeBooklet, updateBookletPage } = useBooklet();
+  const { activeBooklet, updateBooklet, updateBookletPage, createBooklet } = useBooklet();
 
   const [timerRunning, setTimerRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -23,6 +23,8 @@ export default function Segment2During() {
   const pageData = activeBooklet.page5 || {};
   const speakerTracking = Array.isArray(pageData.speakerTracking) ? pageData.speakerTracking : [];
   const actionItems = Array.isArray(pageData.actionItems) ? pageData.actionItems : [];
+
+  const [isPageVerified, setIsPageVerified] = useState(activeBooklet.page4?.isSegment2Verified || false);
 
   const p3Roles = activeBooklet.page3?.roles || {};
   const p3RoleTimes = activeBooklet.page3?.roleTimes || {};
@@ -237,113 +239,11 @@ export default function Segment2During() {
         </div>
       </div>
 
-      {/* ⏱️ Live Speaker Duration Tracking */}
-      <div className="bg-white dark:bg-[#121e2d] border border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-[#f3ebe1] dark:border-slate-800 pb-2">
-          <h3 className="font-montserrat font-extrabold text-sm text-[#006094] dark:text-white flex items-center gap-2">
-            <FiClock className="text-[#006094]" /> Live Speaker Timings Log
-          </h3>
-          <div className="flex items-center gap-2">
-            <Button variant="primary" size="xs" onClick={handleAddSpeaker} className="bg-[#006094] hover:bg-[#003a5c] border-0 cursor-pointer font-montserrat text-white font-extrabold">
-              <FiPlus size={12} className="mr-1" /> Add Speaker Row
-            </Button>
-          </div>
-        </div>
 
-        <div className="max-h-[500px] overflow-y-auto overflow-x-auto border border-[#e8ddd0] dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] relative shadow-inner">
-          <table className="w-full text-left border-collapse text-xs sm:text-sm font-sans">
-            <thead className="sticky top-0 z-10 shadow-xs">
-              <tr className="bg-[#006094] text-white border-b border-[#003a5c] font-montserrat">
-                <th className="p-3.5 font-black text-xs sm:text-sm bg-[#006094]">Speaker Name</th>
-                <th className="p-3.5 font-black text-xs sm:text-sm bg-[#006094]">Role</th>
-                <th className="p-3.5 font-black text-xs sm:text-sm text-center bg-[#006094]">Assigned Target Time</th>
-                <th className="p-3.5 font-black text-xs sm:text-sm text-center bg-[#006094]">Actual Spoken Time</th>
-                <th className="p-3.5 font-black text-xs sm:text-sm text-center w-14 bg-[#006094]">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {speakerTracking.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="p-6 text-center text-slate-400 font-extrabold">
-                    No speakers logged yet. Click "Auto-Fill Names from Segment 1" to populate speaker names.
-                  </td>
-                </tr>
-              ) : (
-                speakerTracking.map(sp => (
-                  <tr
-                    key={sp.id}
-                    className="border-b border-[#e8ddd0]/60 dark:border-slate-800 hover:bg-slate-50/70 dark:hover:bg-slate-900/40 transition-colors"
-                  >
-                    <td className="p-2.5">
-                      <input
-                        type="text"
-                        value={sp.speaker || ''}
-                        onChange={(e) => {
-                          const updated = speakerTracking.map(item => item.id === sp.id ? { ...item, speaker: e.target.value } : item);
-                          updateBookletPage('page5', { speakerTracking: updated });
-                        }}
-                        placeholder="Speaker name"
-                        className="w-full bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-extrabold rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                      />
-                    </td>
 
-                    <td className="p-2.5">
-                      <input
-                        type="text"
-                        value={sp.role || ''}
-                        onChange={(e) => {
-                          const updated = speakerTracking.map(item => item.id === sp.id ? { ...item, role: e.target.value } : item);
-                          updateBookletPage('page5', { speakerTracking: updated });
-                        }}
-                        placeholder="Role (e.g. Speaker 1)"
-                        className="w-full bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 text-[#006094] dark:text-sky-300 placeholder-slate-400 text-xs sm:text-sm font-extrabold rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                      />
-                    </td>
-                    
-                    {/* Fully Editable Assigned Target Time Cell */}
-                    <td className="p-2.5 text-center">
-                      <input
-                        type="text"
-                        value={sp.targetTime || '5 Min'}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const formatted = val.toLowerCase().includes('min') || val.trim() === '' ? val : `${val} Min`;
-                          const updated = speakerTracking.map(item => item.id === sp.id ? { ...item, targetTime: formatted } : item);
-                          updateBookletPage('page5', { speakerTracking: updated });
-                        }}
-                        placeholder="e.g. 5 Min"
-                        className="w-28 bg-white dark:bg-slate-900 border-2 border-[#006094] dark:border-sky-400 text-center font-black text-xs sm:text-sm text-[#006094] dark:text-sky-300 rounded-xl py-2 px-2 focus:outline-none focus:ring-2 focus:ring-[#006094] shadow-xs cursor-text"
-                      />
-                    </td>
 
-                    {/* Actual Spoken Duration Column */}
-                    <td className="p-2.5 text-center font-mono font-black text-sm">
-                      <input
-                        type="text"
-                        value={sp.time || ''}
-                        onChange={(e) => {
-                          const updated = speakerTracking.map(item => item.id === sp.id ? { ...item, time: e.target.value } : item);
-                          updateBookletPage('page5', { speakerTracking: updated });
-                        }}
-                        placeholder="e.g. 5:12"
-                        className="w-28 bg-white dark:bg-slate-900 border border-[#781327]/30 dark:border-rose-800 text-center font-mono font-black text-xs sm:text-sm text-[#781327] dark:text-rose-400 rounded-xl py-2 px-2 focus:outline-none focus:ring-1 focus:ring-[#781327]"
-                      />
-                    </td>
 
-                    <td className="p-2.5 text-center">
-                      <button onClick={() => handleDeleteSpeaker(sp.id)} className="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer">
-                        <FiTrash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-            </table>
-          </div>
-        </div>
-
-      {/* 🏢 Logistics & Venue Verification with Add Buttons */}
+      {/* 🏢 Logistics & Venue Verification (Without Checkboxes) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Venue Preparation Checks */}
@@ -368,24 +268,14 @@ export default function Segment2During() {
               { key: 'seatingArranged', label: 'U-Shape / Theater Seating Arranged' },
               { key: 'bannersPlaced', label: 'District 227 Banner Placed' }
             ].map(item => (
-              <FormCheckbox
-                key={item.key}
-                label={item.label}
-                id={`vcheck-${item.key}`}
-                checked={p4Data.venueChecklist?.[item.key] || false}
-                onChange={() => handleCheckChange('venueChecklist', item.key)}
-              />
+              <div key={item.key} className="p-3 bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-xl shadow-2xs">
+                <span className="text-xs font-montserrat font-extrabold text-slate-800 dark:text-slate-200">{item.label}</span>
+              </div>
             ))}
 
             {/* Custom Venue Check Items */}
             {customVenueChecks.map(item => (
               <div key={item.id} className="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-xl">
-                <input
-                  type="checkbox"
-                  checked={item.checked || false}
-                  onChange={(e) => handleUpdateCustomVenueCheck(item.id, 'checked', e.target.checked)}
-                  className="w-4 h-4 text-[#006094] border-slate-350 rounded focus:ring-[#006094] cursor-pointer"
-                />
                 <input
                   type="text"
                   value={item.label || ''}
@@ -422,24 +312,14 @@ export default function Segment2During() {
               { key: 'ribbonsReady', label: 'Award Ribbons / Certificates Ready' },
               { key: 'bookmarksReady', label: 'Corporate Value Handouts Printed' }
             ].map(item => (
-              <FormCheckbox
-                key={item.key}
-                label={item.label}
-                id={`echeck-${item.key}`}
-                checked={p4Data.equipmentChecklist?.[item.key] || false}
-                onChange={() => handleCheckChange('equipmentChecklist', item.key)}
-              />
+              <div key={item.key} className="p-3 bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-xl shadow-2xs">
+                <span className="text-xs font-montserrat font-extrabold text-slate-800 dark:text-slate-200">{item.label}</span>
+              </div>
             ))}
 
             {/* Custom Equipment Check Items */}
             {customEquipmentChecks.map(item => (
               <div key={item.id} className="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-xl">
-                <input
-                  type="checkbox"
-                  checked={item.checked || false}
-                  onChange={(e) => handleUpdateCustomEquipmentCheck(item.id, 'checked', e.target.checked)}
-                  className="w-4 h-4 text-[#006094] border-slate-350 rounded focus:ring-[#006094] cursor-pointer"
-                />
                 <input
                   type="text"
                   value={item.label || ''}
@@ -497,8 +377,41 @@ export default function Segment2During() {
           </div>
         </div>
 
+      {/* 🛡️ Master Page Readiness Verification Checkbox Card */}
+      <div className="bg-[#E6F0F6]/80 dark:bg-[#121e2d] border-2 border-[#006094] dark:border-sky-800 rounded-3xl p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+        <label className="flex items-center gap-3.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPageVerified}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setIsPageVerified(checked);
+              updateBookletPage('page4', { isSegment2Verified: checked });
+            }}
+            className="w-6 h-6 text-[#006094] border-2 border-[#006094] rounded-lg focus:ring-2 focus:ring-[#006094] cursor-pointer shrink-0"
+          />
+          <div>
+            <span className="font-montserrat font-extrabold text-sm text-[#006094] dark:text-white block">
+              I Confirm All Venue & Equipment Readiness Details
+            </span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold block mt-0.5">
+              Check this box to confirm all meeting supplies, venue setups, and equipment checks are verified before proceeding to Segment 3.
+            </span>
+          </div>
+        </label>
+
+        {!isPageVerified && (
+          <span className="text-[11px] font-black uppercase tracking-wider bg-rose-100 text-[#781327] dark:bg-rose-950 dark:text-rose-300 px-3 py-1.5 rounded-full font-montserrat shrink-0 border border-rose-300 dark:border-rose-900">
+            🔒 Required to Unlock Next Page
+          </span>
+        )}
+      </div>
+
       {/* Navigation footer */}
-      <PageNavigation />
+      <PageNavigation 
+        disabledNext={!isPageVerified} 
+        disabledNextReason="Please tick the Master Verification checkbox confirming venue & equipment readiness before moving to Segment 3!" 
+      />
     </div>
   );
 }

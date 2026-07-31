@@ -4,16 +4,16 @@ import { useBooklet } from '../context/BookletContext';
 import Button from '../components/ui/Button';
 import { 
   FiZap, FiClock, FiPlus, FiArrowRight, FiCalendar, 
-  FiMapPin, FiUsers, FiSearch, FiCheckCircle 
+  FiMapPin, FiUsers, FiSearch, FiCheckCircle, FiTrash2 
 } from 'react-icons/fi';
 
 export default function CurrentMeetings() {
-  const { booklets, selectBooklet, createBooklet } = useBooklet();
+  const { booklets, selectBooklet, createBooklet, deleteBooklet } = useBooklet();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter current meetings (not completed)
-  const currentMeetings = booklets.filter(b => b.status !== 'completed');
+  // Filter current active meetings (ONLY ongoing)
+  const currentMeetings = booklets.filter(b => b.status === 'ongoing');
 
   const filteredMeetings = currentMeetings.filter(b => 
     b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -113,11 +113,26 @@ export default function CurrentMeetings() {
                     </h2>
                   </div>
 
-                  <span className={`text-xs font-black px-2.5 py-1 rounded-xl shrink-0 font-mono ${
-                    isOngoing ? 'bg-white/20 text-white' : 'bg-[#781327] text-white'
-                  }`}>
-                    {meeting.completedPercent || 0}% Done
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-black px-2.5 py-1 rounded-xl shrink-0 font-mono ${
+                      isOngoing ? 'bg-white/20 text-white' : 'bg-[#781327] text-white'
+                    }`}>
+                      {meeting.completedPercent || 0}% Done
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Are you sure you want to cancel and remove "${meeting.title}"?`)) {
+                          deleteBooklet(meeting.id);
+                        }
+                      }}
+                      className="p-1.5 bg-rose-600/80 hover:bg-rose-700 text-white rounded-xl text-xs font-montserrat font-bold cursor-pointer transition-all border border-rose-500/50 shadow-xs"
+                      title="Cancel / Remove Meeting Session"
+                    >
+                      <FiTrash2 size={14} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Details Grid */}
@@ -139,7 +154,7 @@ export default function CurrentMeetings() {
 
                   <div className="flex items-center gap-2 truncate">
                     <FiCheckCircle className={isOngoing ? 'text-rose-200' : 'text-[#006094]'} />
-                    <span className="font-semibold truncate">Host: {page3.hostOrganization || 'Corporation Alpha'}</span>
+                    <span className="font-semibold truncate">Host: {page3.hostOrganization || '—'}</span>
                   </div>
                 </div>
 

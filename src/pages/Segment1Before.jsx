@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBooklet } from '../context/BookletContext';
 import PageNavigation from '../components/PageNavigation';
 import FormInput from '../components/forms/FormInput';
@@ -6,20 +6,36 @@ import Button from '../components/ui/Button';
 import ToastmastersLogo from '../components/ui/ToastmastersLogo';
 import { 
   FiPlayCircle, FiUsers, FiClock, FiCheckSquare, FiPlus, FiTrash2, 
-  FiZap, FiLayers, FiRefreshCw, FiAward, FiBookOpen, FiGlobe, FiX, FiPrinter 
+  FiZap, FiLayers, FiRefreshCw, FiAward, FiBookOpen, FiGlobe, FiX, FiPrinter, FiYoutube, FiCalendar
 } from 'react-icons/fi';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_DEMO_AGENDA, DEMO_AGENDA_NOTES } from '../constants/index.js';
 import { DEFAULT_DISTRICT_CONTACTS, DISTRICT_DIVISIONS, DISTRICT_LIST, AREA_DIRECTORS, DIVISION_DIRECTORS } from '../constants/contactsData.js';
+import ExportMenu from '../components/ui/ExportMenu';
+import { allocateAgendaTimes, allocateProportionalTimes } from '../utils/timeAllocator.js';
 
 export default function Segment1Before() {
-  const { activeBooklet, updateBooklet, updateBookletPage } = useBooklet();
+  const { activeBooklet, updateBooklet, updateBookletPage, createBooklet } = useBooklet();
+
+  // Live real-time clock state
+  const [liveDateTime, setLiveDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLiveDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedLiveDate = liveDateTime.toISOString().split('T')[0];
+  const formattedLiveTime = liveDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
   // Modal states
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [newRoleTitle, setNewRoleTitle] = useState('');
   const [newRoleSpeaker, setNewRoleSpeaker] = useState('');
   const [newRoleTime, setNewRoleTime] = useState('5');
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Time allocation modal state
   const [showAllocateModal, setShowAllocateModal] = useState(false);
@@ -42,6 +58,26 @@ export default function Segment1Before() {
     if (str === '') return '5 Min';
     return str.toLowerCase().includes('min') ? str : `${str} Min`;
   };
+
+  // Validate if all required Segment 1 fields are completed
+  const getMissingFields = () => {
+    const missing = [];
+    if (!pageData.meetingTheme?.trim()) missing.push('Meeting Theme');
+    if (!pageData.wordOfDay?.trim()) missing.push('Word of the Day');
+
+    if (agendaItems.length === 0) {
+      missing.push('Agenda Table Rows');
+    } else {
+      const missingRoles = agendaItems.filter(item => !item.speaker?.trim());
+      if (missingRoles.length > 0) {
+        missing.push(`${missingRoles.length} Agenda Role Taker Name(s)`);
+      }
+    }
+    return missing;
+  };
+
+  const missingFields = getMissingFields();
+  const isSegment1Complete = missingFields.length === 0;
 
   const updateRolesAndSync = (newRoles, newRoleTimes, newRoleLabels, newCustomList) => {
     const rolesObj = newRoles !== undefined ? newRoles : (pageData.roles || {});
@@ -278,7 +314,12 @@ export default function Segment1Before() {
   };
 
   const handleFieldChange = (key, value) => {
-    updateBookletPage('page3', { [key]: value });
+    if (key === 'time') {
+      const reallocated = allocateAgendaTimes(agendaItems, value);
+      updateBookletPage('page3', { time: value, agendaItems: reallocated });
+    } else {
+      updateBookletPage('page3', { [key]: value });
+    }
   };
 
   const defaultRoleConfigs = [
@@ -318,53 +359,7 @@ export default function Segment1Before() {
         </div>
       </div>
 
-      {/* 🎭 Toastmasters Meeting Theme, Word of the Day & Online Link Card */}
-      <div className="bg-white dark:bg-[#121e2d] border-2 border-[#781327]/30 dark:border-rose-900/50 rounded-3xl p-6 shadow-md space-y-4 no-print">
-        <div className="flex items-center justify-between border-b border-[#f3ebe1] dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <FiAward className="text-[#781327]" size={20} />
-            <h3 className="font-montserrat font-black text-base text-[#781327] dark:text-rose-300">
-              Toastmasters Meeting Theme & Word of the Day
-            </h3>
-          </div>
-          <span className="text-xs bg-rose-100 text-[#781327] font-black px-3 py-1 rounded-full font-montserrat shadow-xs">
-            Official Agenda Header
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormInput
-            label="Meeting Theme *"
-            id="meetingTheme"
-            value={pageData.meetingTheme || ''}
-            onChange={(e) => handleFieldChange('meetingTheme', e.target.value)}
-            placeholder="e.g. Aim for the stars"
-            className="md:col-span-2"
-          />
-          <FormInput
-            label="Zoom / Online Link"
-            id="meetingLink"
-            value={pageData.meetingLink || ''}
-            onChange={(e) => handleFieldChange('meetingLink', e.target.value)}
-            placeholder="https://zoom.us/j/..."
-          />
-          <FormInput
-            label="Word of the Day *"
-            id="wordOfDay"
-            value={pageData.wordOfDay || ''}
-            onChange={(e) => handleFieldChange('wordOfDay', e.target.value)}
-            placeholder="e.g. Aspiration"
-          />
-          <FormInput
-            label="Word Meaning"
-            id="wordMeaning"
-            value={pageData.wordMeaning || ''}
-            onChange={(e) => handleFieldChange('wordMeaning', e.target.value)}
-            placeholder="Word meaning definition..."
-            className="md:col-span-2"
-          />
-        </div>
-      </div>
 
       {/* 📹 Video Guide & Official District Logo Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start no-print">
@@ -409,187 +404,84 @@ export default function Segment1Before() {
 
       </div>
 
-      {/* 🏛️ Officer Directory & Host Organization Logistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start no-print">
-
-        {/* Officer Leadership Details */}
-        <div className="bg-[#E6F0F6]/40 dark:bg-[#121e2d] border border-[#006094]/20 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-[#006094]/20 pb-2">
-            <h3 className="font-montserrat font-black text-sm text-[#006094] dark:text-white flex items-center gap-2">
-              <FiUsers className="text-[#006094]" /> Officer Directory & Leadership (District 227)
-            </h3>
-            <span className="text-[10px] bg-[#006094] text-white px-2.5 py-0.5 rounded-full font-bold">
-              District 227 Auto-Fill
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-sans">
-            
-            {/* Area Director Name with Datalist Dropdown */}
-            <div>
-              <label className="block text-xs font-black text-[#006094] dark:text-slate-200 uppercase tracking-wider mb-1 font-montserrat">
-                Area Director Name
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="areaDirectorList"
-                  value={activeBooklet.areaDirector || ''}
-                  onChange={(e) => updateBooklet(activeBooklet.id, { areaDirector: e.target.value })}
-                  placeholder="Select from District 227 or enter new..."
-                  className="w-full bg-white dark:bg-slate-900 border border-[#006094]/30 dark:border-slate-800 text-xs font-black text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                />
-                <datalist id="areaDirectorList">
-                  {AREA_DIRECTORS.map((dir, i) => (
-                    <option key={i} value={dir.split(' (')[0]}>{dir}</option>
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            {/* Division with Datalist Dropdown */}
-            <div>
-              <label className="block text-xs font-black text-[#006094] dark:text-slate-200 uppercase tracking-wider mb-1 font-montserrat">
-                Division
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="divisionList"
-                  value={activeBooklet.division || ''}
-                  onChange={(e) => updateBooklet(activeBooklet.id, { division: e.target.value })}
-                  placeholder="Select Division or enter new..."
-                  className="w-full bg-white dark:bg-slate-900 border border-[#006094]/30 dark:border-slate-800 text-xs font-black text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                />
-                <datalist id="divisionList">
-                  {DISTRICT_DIVISIONS.map(div => (
-                    <option key={div} value={div} />
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            {/* Division Director Name with Datalist Dropdown */}
-            <div>
-              <label className="block text-xs font-black text-[#006094] dark:text-slate-200 uppercase tracking-wider mb-1 font-montserrat">
-                Division Director Name
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="divisionDirectorList"
-                  value={activeBooklet.divisionDirector || ''}
-                  onChange={(e) => updateBooklet(activeBooklet.id, { divisionDirector: e.target.value })}
-                  placeholder="Select from District 227 or enter new..."
-                  className="w-full bg-white dark:bg-slate-900 border border-[#006094]/30 dark:border-slate-800 text-xs font-black text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                />
-                <datalist id="divisionDirectorList">
-                  {DIVISION_DIRECTORS.map((dir, i) => (
-                    <option key={i} value={dir.split(' (')[0]}>{dir}</option>
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            {/* District with Datalist Dropdown */}
-            <div>
-              <label className="block text-xs font-black text-[#006094] dark:text-slate-200 uppercase tracking-wider mb-1 font-montserrat">
-                District *
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="districtList"
-                  value={activeBooklet.districtName || 'District 227'}
-                  onChange={(e) => updateBooklet(activeBooklet.id, { districtName: e.target.value })}
-                  placeholder="District 227"
-                  className="w-full bg-white dark:bg-slate-900 border border-[#006094]/30 dark:border-slate-800 text-xs font-black text-[#006094] dark:text-sky-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                />
-                <datalist id="districtList">
-                  {DISTRICT_LIST.map(dist => (
-                    <option key={dist} value={dist} />
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Meeting Location & Date */}
-        <div className="bg-[#E6F0F6]/40 dark:bg-[#121e2d] border border-[#006094]/20 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
-          <h3 className="font-montserrat font-black text-sm text-[#006094] dark:text-white flex items-center gap-2 border-b border-[#006094]/20 pb-2">
-            <FiClock className="text-[#006094]" /> Host Organization & Logistics
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormInput
-              label="Host Organization *"
-              id="hostOrganization"
-              value={pageData.hostOrganization || ''}
-              onChange={(e) => handleFieldChange('hostOrganization', e.target.value)}
-              placeholder="e.g. Corporation Alpha"
-            />
-            <FormInput
-              label="Venue / Link"
-              id="venue"
-              value={pageData.venue || ''}
-              onChange={(e) => handleFieldChange('venue', e.target.value)}
-              placeholder="Auditorium A / Zoom Link"
-            />
-            <FormInput
-              label="Meeting Date"
-              id="date"
-              type="date"
-              value={pageData.date || ''}
-              onChange={(e) => handleFieldChange('date', e.target.value)}
-            />
-            <FormInput
-              label="Meeting Start Time (Auto-Allocates Table)"
-              id="time"
-              value={pageData.time || ''}
-              onChange={(e) => handleMeetingTimeChange(e.target.value)}
-              placeholder="11:00 AM or 11 AM"
-            />
-          </div>
-        </div>
-
-      </div>
-
       {/* TOASTMASTERS DEMO MEETING AGENDA TABLE (Matching Image 2) */}
       <div className="bg-white dark:bg-[#121e2d] border-2 border-[#004165] dark:border-sky-900 rounded-3xl p-5 shadow-lg space-y-4 printable-agenda-card">
         
         {/* Header Title & Action Toolbar */}
-        <div className="border-b-2 border-[#004165] dark:border-sky-900 pb-4 space-y-3">
+        <div className="border-b-2 border-[#004165] dark:border-sky-900 pb-4 space-y-4">
           
-          {/* Printable Official Header Banner */}
-          <div className="text-center space-y-1 mb-2">
-            <h2 className="text-xl font-montserrat font-black text-[#004165] dark:text-sky-300 uppercase tracking-wide">
+          {/* Printable Official Header Banner & Integrated Theme / Word of the Day Inputs */}
+          <div className="text-center space-y-3">
+            
+            {/* 📌 Non-editable Fixed Metadata Bar (Date & Time on Left, Venue & District/Division/Area on Right) */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-2 bg-[#E6F0F6]/80 dark:bg-slate-900 border border-[#006094]/30 rounded-2xl text-xs font-montserrat font-extrabold text-[#006094] dark:text-sky-300 shadow-xs">
+              <div className="flex items-center gap-1.5">
+                <FiCalendar size={14} className="text-[#781327]" />
+                <span>Date & Time: <span className="text-slate-900 dark:text-white font-black">{formattedLiveDate} @ {formattedLiveTime}</span></span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span>Venue: <span className="text-slate-900 dark:text-white font-black">{pageData.venue || pageData.meetingLink || 'Auditorium / Online'}</span></span>
+                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span>District: <span className="text-[#781327] dark:text-rose-400 font-black">District 227</span></span>
+                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span>Division / Area: <span className="text-slate-900 dark:text-white font-black">{activeBooklet.division || 'Division A'} / {activeBooklet.areaDirector || 'Area 01'}</span></span>
+              </div>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-montserrat font-black text-[#004165] dark:text-sky-300 uppercase tracking-wide">
               TOASTMASTERS DEMO MEETING AGENDA
             </h2>
-            <div className="text-xs font-bold text-[#781327] dark:text-rose-400">
-              THEME OF THE DEMO MEETING: <span className="font-black">{pageData.meetingTheme || '__________________'}</span>
+            
+            {/* Integrated Theme & Word of the Day Controls */}
+            <div className="bg-[#FAF5EF] dark:bg-slate-900 border border-[#e8ddd0] dark:border-slate-800 rounded-2xl p-3.5 shadow-xs space-y-2.5">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-[#781327] dark:text-rose-400">
+                <span className="font-extrabold uppercase font-montserrat tracking-wide">THEME OF THE DEMO MEETING:</span>
+                <input
+                  type="text"
+                  value={pageData.meetingTheme || ''}
+                  onChange={(e) => handleFieldChange('meetingTheme', e.target.value)}
+                  placeholder="e.g. Aim for the stars"
+                  className="px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-[#781327]/40 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-montserrat font-extrabold text-xs sm:text-sm focus:ring-2 focus:ring-[#781327] outline-none shadow-xs w-full max-w-md text-center"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-[#e8ddd0] dark:border-slate-800 text-left">
+                <div>
+                  <label className="block text-[11px] font-montserrat font-extrabold uppercase text-[#006094] dark:text-sky-300 mb-1">
+                    Word of the Day *
+                  </label>
+                  <input
+                    type="text"
+                    value={pageData.wordOfDay || ''}
+                    onChange={(e) => handleFieldChange('wordOfDay', e.target.value)}
+                    placeholder="e.g. Aspiration"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-montserrat font-extrabold text-xs focus:ring-2 focus:ring-[#006094] outline-none shadow-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-montserrat font-extrabold uppercase text-[#006094] dark:text-sky-300 mb-1">
+                    Word Meaning
+                  </label>
+                  <input
+                    type="text"
+                    value={pageData.wordMeaning || ''}
+                    onChange={(e) => handleFieldChange('wordMeaning', e.target.value)}
+                    placeholder="A strong desire to achieve something high or great..."
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-montserrat font-semibold text-xs focus:ring-2 focus:ring-[#006094] outline-none shadow-xs"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 px-2 no-print">
             <ToastmastersLogo district={activeBooklet.districtName || "DISTRICT 227"} size="sm" />
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={handleOpenAllocateModal}
-                className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 rounded-xl font-extrabold flex items-center gap-1.5 cursor-pointer shadow-sm font-montserrat transition-all"
-                title="Open Time Allocation Engine (60, 75, 90, 120 min scaling)"
-              >
-                <FiZap size={14} /> Allocate Times
-              </button>
-              <button
-                type="button"
-                onClick={handlePrintAgenda}
-                className="text-xs bg-[#781327] hover:bg-[#580d1b] text-white px-3.5 py-2 rounded-xl font-extrabold flex items-center gap-1.5 cursor-pointer shadow-sm font-montserrat transition-all"
-                title="Print full Toastmasters Demo Agenda layout matching Image 2"
-              >
-                <FiPrinter size={14} /> Print Agenda
-              </button>
+              <ExportMenu 
+                title={`${activeBooklet.title} - Meeting Agenda`} 
+                elementId="segment-1-agenda-container" 
+                bookletData={activeBooklet} 
+              />
               <button 
                 type="button"
                 onClick={handleLoadDemoTemplate}
@@ -598,19 +490,12 @@ export default function Segment1Before() {
               >
                 <FiRefreshCw size={14} /> Load Demo Template
               </button>
-              <button 
-                type="button"
-                onClick={handleAddAgendaItem}
-                className="text-xs bg-[#006094] hover:bg-[#003a5c] text-white px-3.5 py-2 rounded-xl font-black flex items-center gap-1.5 cursor-pointer font-montserrat shadow-sm transition-all"
-              >
-                <FiPlus size={14} /> Add Agenda Row
-              </button>
             </div>
           </div>
         </div>
 
         {/* Table layout matching Image 2 */}
-        <div className="max-h-[560px] overflow-y-auto overflow-x-auto border-2 border-[#004165]/30 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] relative shadow-inner printable-table-container">
+        <div id="segment-1-agenda-container" className="max-h-[560px] overflow-y-auto overflow-x-auto border-2 border-[#004165]/30 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0c1421] relative shadow-inner printable-table-container">
           <table className="w-full text-left border-collapse text-xs">
             <thead className="sticky top-0 z-10 shadow-xs">
               <tr className="bg-[#004165] text-white font-montserrat uppercase tracking-wider text-[11px]">
@@ -650,13 +535,25 @@ export default function Segment1Before() {
 
                   {/* AGENDA ITEM (Title + Description) */}
                   <td className="p-2 border-r border-slate-200 dark:border-slate-800 space-y-1">
-                    <input
-                      type="text"
-                      value={item.slot || ''}
-                      onChange={(e) => handleUpdateAgendaItem(item.id, 'slot', e.target.value)}
-                      placeholder="Agenda Item Title..."
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-black text-[#004165] dark:text-sky-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#006094]"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={item.slot || ''}
+                        onChange={(e) => handleUpdateAgendaItem(item.id, 'slot', e.target.value)}
+                        placeholder="Agenda Item Title..."
+                        className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-black text-[#004165] dark:text-sky-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#006094]"
+                      />
+                      {(item.hasVideo || (item.slot && item.slot.toLowerCase().includes('toastmasters introduction'))) && (
+                        <button
+                          type="button"
+                          onClick={() => setShowVideoModal(true)}
+                          title="Watch Toastmasters Meeting Procedure Video Guide"
+                          className="p-1 text-red-600 hover:text-red-700 bg-red-50 dark:bg-red-950/50 rounded-lg transition-transform hover:scale-110 cursor-pointer border border-red-200 dark:border-red-900/60 shrink-0"
+                        >
+                          <FiYoutube size={15} />
+                        </button>
+                      )}
+                    </div>
                     <input
                       type="text"
                       value={item.details !== undefined ? item.details : (item.notes || '')}
@@ -735,43 +632,42 @@ export default function Segment1Before() {
         </div>
       </div>
 
-      {/* ✅ Quality Readiness Checklist */}
-      <div className="bg-white dark:bg-[#121e2d] border border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4 no-print">
-        <div className="flex items-center justify-between border-b border-[#f3ebe1] dark:border-slate-800 pb-2">
-          <h3 className="font-montserrat font-black text-sm text-[#006094] dark:text-white flex items-center gap-2">
-            <FiCheckSquare className="text-[#006094]" /> Pre-Meeting Quality Checklist
-          </h3>
-          <Button variant="secondary" size="xs" onClick={handleAddCustomCheck}>
-            <FiPlus size={12} className="mr-1" /> Add Custom Check
-          </Button>
+      {/* 🛡️ Field Completion & Next Page Unlock Banner */}
+      <div className={`border-2 rounded-3xl p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 no-print transition-all ${
+        isSegment1Complete 
+          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-200' 
+          : 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-900 dark:text-rose-200'
+      }`}>
+        <div className="flex items-center gap-3">
+          <div className={`p-2.5 rounded-2xl ${isSegment1Complete ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200' : 'bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200'}`}>
+            {isSegment1Complete ? <FiCheckSquare size={22} /> : <FiClock size={22} />}
+          </div>
+          <div>
+            <span className="font-montserrat font-extrabold text-sm block">
+              {isSegment1Complete ? '✓ All Segment 1 Required Fields Completed!' : '🔒 Required Fields Incomplete'}
+            </span>
+            <span className="text-xs font-bold block mt-0.5 opacity-90">
+              {isSegment1Complete 
+                ? 'All required details (Meeting Theme, Word of the Day, Agenda Role Takers) are filled. You may proceed to Segment 2.'
+                : `Missing: ${missingFields.join(', ')}. Fill all fields to unlock the Next Page.`
+              }
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {checklistItems.map(item => (
-            <div key={item.id} className="flex items-start gap-3 p-3.5 bg-[#E6F0F6]/40 dark:bg-slate-950 border border-[#006094]/15 rounded-2xl">
-              <input
-                type="checkbox"
-                checked={item.checked || false}
-                onChange={() => handleCheckChange(item.id)}
-                className="mt-0.5 w-5 h-5 text-[#006094] border-slate-300 rounded focus:ring-[#006094] cursor-pointer"
-              />
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-black text-[#006094] dark:text-slate-200 block leading-tight">{item.label}</span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-bold block">{item.desc}</span>
-              </div>
-              {item.isCustom && (
-                <button onClick={() => handleDeleteCustomCheck(item.id)} className="text-slate-400 hover:text-red-600 p-1 cursor-pointer">
-                  <FiTrash2 size={14} />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+        {!isSegment1Complete && (
+          <span className="text-[11px] font-black uppercase tracking-wider bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 px-3.5 py-1.5 rounded-full font-montserrat shrink-0 border border-rose-300">
+            Navigation Locked
+          </span>
+        )}
       </div>
 
       {/* Page navigation steps at bottom of page */}
       <div className="pt-4 border-t border-[#e8ddd0] dark:border-slate-800 no-print">
-        <PageNavigation currentPage={3} />
+        <PageNavigation 
+          disabledNext={!isSegment1Complete}
+          disabledNextReason={`Please complete all required fields (${missingFields.join(', ')}) before moving to Segment 2!`}
+        />
       </div>
 
       {/* ⚡ Dedicated Time Allocation Engine Modal */}
@@ -965,6 +861,50 @@ export default function Segment1Before() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 📹 Toastmasters Procedure Video Guide Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+          <div className="bg-white dark:bg-[#121e2d] border-2 border-[#006094] dark:border-sky-900 rounded-3xl p-5 max-w-2xl w-full shadow-2xl space-y-4 font-sans">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <FiYoutube className="text-red-600" size={24} />
+                <h3 className="font-montserrat font-black text-base text-[#006094] dark:text-white">
+                  Toastmasters Meeting Procedure Video Guide
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-full cursor-pointer"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-inner bg-black">
+              <iframe
+                src="https://www.youtube.com/embed/383gehepo8M?autoplay=1"
+                title="Toastmasters Meeting Guide Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+
+            <div className="flex items-center justify-between pt-1 text-xs font-bold text-slate-500">
+              <span>📺 Step-by-step video guide for conducting District corporate meetings.</span>
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(false)}
+                className="px-4 py-2 bg-[#006094] hover:bg-[#003a5c] text-white font-extrabold rounded-xl text-xs font-montserrat shadow-xs cursor-pointer"
+              >
+                Close Video
+              </button>
+            </div>
           </div>
         </div>
       )}
