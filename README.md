@@ -1,73 +1,96 @@
-# District 228 Demo Meeting Booklet Manager
+# District 227 Toastmasters SaaS Platform
 
-An enterprise SaaS-grade, complete frontend-only booklet management system designed for District 228 officers to organize, execute, and track Toastmasters corporate demo meetings.
+An enterprise SaaS-grade, full-stack meeting booklet management platform designed for District 227 Toastmasters officers to organize, execute, and track Toastmasters corporate meetings, booklets, and chartering progress.
 
 ---
 
 ## 🚀 Tech Stack
+
+### 🎨 Frontend
 - **Framework**: React 18 & Vite
 - **Styling**: Tailwind CSS v4 & custom Print CSS
 - **Routing**: React Router DOM (v6)
-- **Forms & Validation**: React Hook Form
 - **Icons**: React Icons (Feather Icons)
-- **State Management**: Context API & LocalStorage
-- **PDF Export**: html2canvas & jsPDF
+- **State Management**: Context API & LocalStorage (`d227_booklets_v900`)
+- **PDF Export**: Custom Print Engine & html2canvas / jsPDF
 - **Date Handling**: date-fns
-- **UID generation**: uuid
+- **UID Generation**: uuid
+
+### ⚙️ Backend REST API & Database
+- **Server**: Node.js & Express.js (ES Modules)
+- **Database**: MongoDB & Mongoose ORM
+- **Password Security**: `bcryptjs` salt hashing (factor 10)
+- **Token Auth**: JSON Web Tokens (`jsonwebtoken`)
+- **Deployment Health Check**: Live indicator in top header bar
 
 ---
 
-## 📂 Project Structure
-```
-src/
-├── assets/             # Logo placeholders
-├── components/         # Reusable widgets
-│   ├── common/         # ConfirmDialog, Toast, PageSpinner
-│   ├── forms/          # FormInput, FormCheckbox, FormTextarea
-│   ├── layout/         # Header, Sidebar, Footer, AppLayout
-│   ├── tables/         # Reusable DataTable with sorting/pagination/search
-│   ├── dashboard/      # StatCards, UpcomingMeetings, RecentActivity
-│   ├── booklet/        # Page-specific components
-│   ├── tracker/        # Inline editing grid components
-│   └── ui/             # Reusable core design components (Button, Modal, Badge, Card, ProgressRing)
-├── constants/          # Action types, page lists, default data constants
-├── context/            # BookletContext, ToastContext
-├── data/               # Default booklet templates & mock seed lists
-├── hooks/              # useLocalStorage, useUndo
-├── pages/              # Pages 1-8, Dashboard, Settings, PrintView
-├── routes/             # AppRouter configs
-├── services/           # PDFGenerator, ExcelExporter (CSV)
-├── styles/             # Stylesheet configuration overrides
-└── utils/              # Calculation helpers, date formatters
+## 🔐 Default Officer Credentials & Security
+
+### 🛡️ Password Encryption
+User passwords are automatically encrypted with **Bcrypt** (`bcryptjs`) before storing in the database.
+
+### 🔑 Pre-Configured Accounts
+
+| Username | Default Password | Officer Name | Assigned Role |
+| :--- | :--- | :--- | :--- |
+| `admin` | `password` | System Administrator | **District Main Administrator** |
+| `nitasha` | `password` | Nitasha Kumar | **District Director** |
+| `prashanth` | `password` | Prashanth K | **Club Growth Director** |
+| `nagesh` | `password` | Nagesh Ramamurthy | **CGB Pillar Lead** |
+| `pramod` | `password` | Pramod K | **DMO Task Force Lead** |
+
+---
+
+## 📂 Repository Structure
+
+```text
+tost/
+├── frontend/           <-- 🎨 React Frontend Client
+│   ├── src/
+│   │   ├── services/api.js   <-- Backend REST API Connection
+│   │   ├── context/BookletContext.jsx <-- Production Clean State (v900)
+│   │   ├── components/
+│   │   └── pages/
+│   └── package.json
+│
+├── backend/            <-- ⚙️ Express API Server & Database
+│   ├── models/User.js        <-- Mongoose Schema with Bcrypt Pre-Save Hook
+│   ├── controllers/authController.js <-- Bcrypt Login/Register Controllers
+│   ├── server.js
+│   └── .env            <-- Database & Environment Credentials
+│
+├── HANDOVER_GUIDE.md   <-- Detailed Handover & Production Guide
+└── package.json        <-- Monorepo Script Runner
 ```
 
 ---
 
 ## 🛠️ Installation & Getting Started
 
-Follow these steps to run the application locally on your system:
-
-### 1. Install Dependencies
-Run the installation command to download all required packages:
+### 1️⃣ Run Frontend Client
 ```bash
+cd frontend
 npm install
-```
-
-### 2. Launch Local Development Server
-Start the local Vite development server:
-```bash
 npm run dev
 ```
 
-### 3. Open in Browser
-Once started, the CLI will output the server URL. Open the link in your web browser:
+### 2️⃣ Run Backend API Server
+```bash
+cd backend
+npm install
+npm start
 ```
-http://localhost:5173/
-```
+
 ---
 
-## 📈 Verification Checklist
-- **Autosave**: All inputs are saved on key-down to `localStorage` and automatically restored.
-- **Undo / Redo Stack**: Revert unintended changes by clicking the Header controls or pressing `Ctrl+Z` / `Ctrl+Y`.
-- **A4 PDF Exporter**: Export printable formats of meeting sheets or full booklets via `window.print()` PDF drivers.
-- **Lead Tracker DataTable**: Search, filter, and sort Corporate Demo Leads in page 7 tracker grid. Export logs directly as a CSV sheet.
+## 📋 What to Do After All Updates (Post-Update Setup)
+
+Upon completing setup or taking over deployment, perform the following action items:
+
+1. **Change Default Passwords**: Log into each account and update passwords via `/security`.
+2. **Configure Database**: Connect `backend/.env` to your production MongoDB Atlas cluster (`MONGO_URI`).
+3. **Set Production JWT Secret**: Update `JWT_SECRET` in `backend/.env` with a random secret key.
+4. **Point Frontend to Backend**: Update `VITE_API_URL` in `frontend/src/services/api.js` to point to your live backend server.
+5. **Verify Build**: Run `npm run build` in `frontend/` to confirm zero compilation errors.
+6. **Handover Reference**: Refer to `HANDOVER_GUIDE.md` for full step-by-step handover details.

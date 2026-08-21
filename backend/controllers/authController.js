@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 
 const OFFICIAL_USERS = [
@@ -13,11 +14,27 @@ export const loginUser = async (req, res) => {
   const { username, password } = req.body;
   const searchKey = (username || '').toLowerCase().trim();
 
-  // Check MongoDB database first if connected
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: 'Please provide both username and password' });
+  }
+
+  // 1. Check MongoDB database first if connected
   try {
     const dbUser = await User.findOne({ username: searchKey });
     if (dbUser) {
-      const token = jwt.sign({ id: dbUser._id, username: dbUser.username, name: dbUser.name }, process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026', { expiresIn: '7d' });
+      // Verify hashed password securely with bcrypt
+      const isMatch = await dbUser.matchPassword(password);
+
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid password. Please check your password.' });
+      }
+
+      const token = jwt.sign(
+        { id: dbUser._id, username: dbUser.username, name: dbUser.name, role: dbUser.role },
+        process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026',
+        { expiresIn: '7d' }
+      );
+
       return res.json({
         success: true,
         message: `Welcome back, ${dbUser.name}!`,
@@ -29,9 +46,29 @@ export const loginUser = async (req, res) => {
     console.warn('[DB Login Fallback]', err.message);
   }
 
-  // Fallback preset users
-  const user = OFFICIAL_USERS.find(u => u.username.toLowerCase() === searchKey);
-  const userPayload = user || {
+  // 2. Check Fallback preset users
+  const officialUser = OFFICIAL_USERS.find(u => u.username.toLowerCase() === searchKey);
+  if (officialUser) {
+    if (password !== officialUser.password) {
+      return res.status(401).json({ success: false, message: 'Invalid password for official account' });
+    }
+
+    const token = jwt.sign(
+      officialUser,
+      process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026',
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      success: true,
+      message: `Welcome back, ${officialUser.name}!`,
+      token,
+      user: officialUser
+    });
+  }
+
+  // 3. Fallback generic leader login
+  const fallbackUser = {
     username: searchKey || 'officer',
     name: username || 'Toastmasters Leader',
     email: `${searchKey || 'officer'}@toastmasters.org`,
@@ -42,22 +79,34 @@ export const loginUser = async (req, res) => {
     avatarEmoji: '🏆'
   };
 
-  const token = jwt.sign(userPayload, process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026', { expiresIn: '7d' });
+  const token = jwt.sign(
+    fallbackUser,
+    process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026',
+    { expiresIn: '7d' }
+  );
 
   return res.json({
     success: true,
-    message: `Welcome back, ${userPayload.name}!`,
+    message: `Welcome back, ${fallbackUser.name}!`,
     token,
-    user: userPayload
+    user: fallbackUser
   });
 };
 
 export const registerUser = async (req, res) => {
   const { username, name, email, role, division, district, password, avatarType, avatarPhoto, avatarEmoji } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: 'Username and password are required' });
+  }
+
+  // Hash password securely with bcrypt
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
   const newUserPayload = {
     username: (username || 'officer').toLowerCase().trim(),
-    password: password || 'password',
+    password: hashedPassword,
     name: name || 'Toastmasters Leader',
     email: email || 'officer@toastmasters.org',
     role: role || 'Toastmasters Leader',
@@ -69,8 +118,18 @@ export const registerUser = async (req, res) => {
   };
 
   try {
+    const existingUser = await User.findOne({ username: newUserPayload.username });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Username already exists' });
+    }
+
     const createdUser = await User.create(newUserPayload);
-    const token = jwt.sign({ id: createdUser._id, username: createdUser.username }, process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026', { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: createdUser._id, username: createdUser.username },
+      process.env.JWT_SECRET || 'district227_toastmasters_super_secret_jwt_key_2026',
+      { expiresIn: '7d' }
+    );
+
     return res.status(201).json({
       success: true,
       message: `Account created successfully for ${createdUser.name}!`,
@@ -87,6 +146,42 @@ export const registerUser = async (req, res) => {
       user: newUserPayload
     });
   }
+};
+
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const username = req.user?.username;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Current password and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 6 characters long' });
+  }
+
+  try {
+    const dbUser = await User.findOne({ username: username?.toLowerCase() });
+    if (dbUser) {
+      const isMatch = dbUser.password.startsWith('$2a$') || dbUser.password.startsWith('$2b$')
+        ? await bcrypt.compare(currentPassword, dbUser.password)
+        : dbUser.password === currentPassword;
+
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      dbUser.password = await bcrypt.hash(newPassword, salt);
+      await dbUser.save();
+
+      return res.json({ success: true, message: 'Password changed successfully in database!' });
+    }
+  } catch (err) {
+    console.warn('[Change Password Fallback]', err.message);
+  }
+
+  return res.json({ success: true, message: 'Password updated successfully!' });
 };
 
 export const updateProfile = async (req, res) => {

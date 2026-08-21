@@ -14,10 +14,10 @@ export default function ToastmastersLogo({
   const [imgError, setImgError] = useState(true);
 
   const sizeClasses = {
-    sm: "w-12 h-12",
-    md: "w-14 h-14",
-    lg: "w-16 h-16 sm:w-20 sm:h-20",
-    xl: "w-20 h-20 sm:w-24 sm:h-24"
+    sm: "w-10 h-10",
+    md: "w-12 h-12",
+    lg: "w-12 h-12 sm:w-14 sm:h-14",
+    xl: "w-16 h-16 sm:w-20 sm:h-20"
   };
 
   // If passed "District 227", override to TOASTMASTERS INTERNATIONAL as requested
@@ -25,9 +25,9 @@ export default function ToastmastersLogo({
   const displaySubtitle = subtitle === "CLUB GROWTH DASHBOARD" ? "INTERNATIONAL" : subtitle;
 
   const content = (
-    <div className={`flex items-center gap-3.5 select-none min-w-0 ${className}`}>
-      {/* Official Toastmasters Globe Emblem Badge - Extra Large */}
-      <div className={`${sizeClasses[size] || "w-16 h-16"} bg-white rounded-2xl p-1 flex items-center justify-center shadow-lg shrink-0 border-2 border-slate-200 overflow-hidden group-hover:scale-105 transition-transform`}>
+    <div className={`flex items-center gap-3 select-none min-w-0 ${className}`}>
+      {/* Official Toastmasters Globe Emblem Badge */}
+      <div className={`${sizeClasses[size] || "w-12 h-12"} bg-white rounded-2xl p-1 flex items-center justify-center shadow-lg shrink-0 border-2 border-slate-200 overflow-hidden group-hover:scale-105 transition-transform`}>
         {!imgError ? (
           <img 
             src={`${import.meta.env.BASE_URL}toastmasters-logo.png`} 
@@ -55,14 +55,14 @@ export default function ToastmastersLogo({
         )}
       </div>
 
-      {/* TOASTMASTERS INTERNATIONAL Title Lockup - Super Bold & Large */}
+      {/* TOASTMASTERS INTERNATIONAL Title Lockup */}
       {showText && (
-        <div className="text-left leading-tight">
-          <h2 className={`text-2xl sm:text-3xl font-black ${textColor} font-montserrat tracking-tight uppercase`}>
+        <div className="text-left leading-tight min-w-0">
+          <h2 className={`text-base sm:text-lg lg:text-xl font-black ${textColor} font-montserrat tracking-tight uppercase truncate`}>
             {displayDistrict}
           </h2>
           {showSubtitle && (
-            <span className={`text-xs sm:text-sm font-extrabold ${textColor} opacity-90 uppercase tracking-widest block font-montserrat mt-0.5`}>
+            <span className={`text-[10px] sm:text-xs font-bold ${textColor} opacity-90 uppercase tracking-widest block font-montserrat mt-0.5 truncate`}>
               {displaySubtitle}
             </span>
           )}

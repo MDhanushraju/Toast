@@ -13,10 +13,13 @@ export function BookletProvider({ children }) {
   // Render Backend Connectivity State
   const [backendStatus, setBackendStatus] = useState('checking'); // 'checking' | 'online' | 'offline'
 
-  // Local storage state keys (Fresh clean slate with zero dummy booklets)
-  const [booklets, setBooklets] = useLocalStorage('d227_booklets_v200', []);
-  const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v200', null);
-  const [hasCreatedDemoMeeting, setHasCreatedDemoMeeting] = useLocalStorage('d227_has_created_demo_v2', false);
+  // Mobile Navigation Drawer State
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Production local storage state keys initialized with 100% clean empty slate
+  const [booklets, setBooklets] = useLocalStorage('d227_booklets_v900', []);
+  const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v900', null);
+  const [hasCreatedDemoMeeting, setHasCreatedDemoMeeting] = useLocalStorage('d227_has_created_demo_v900', false);
   const [theme, setTheme] = useLocalStorage('d227_theme_v3', 'light');
 
   // Check health of Render backend on startup
@@ -35,9 +38,20 @@ export function BookletProvider({ children }) {
       });
   }, []);
 
-  // Auto-purge any legacy dummy booklets stored in browser cache
+  // Purge all legacy local storage keys containing mock booklets from past versions
   useEffect(() => {
-    setBooklets(prev => (prev || []).filter(b => b.id !== 'district-demo-booklet' && b.id !== 'corp-alp' && b.id !== 'corp-bet' && b.id !== 'district'));
+    const legacyKeys = [
+      'd227_booklets_v200', 'd227_active_booklet_id_v200', 'd227_has_created_demo_v2',
+      'd227_booklets_v100', 'd227_active_booklet_id_v100', 'd227_booklets',
+      'd227_booklets_v300', 'd227_active_booklet_id_v300',
+      'd227_booklets_v500', 'd227_active_booklet_id_v500'
+    ];
+    legacyKeys.forEach(k => localStorage.removeItem(k));
+    
+    setBooklets(prev => {
+      const mockIds = ['district-demo-1', 'up-1', 'up-2', 'up-3', 'comp-1', 'comp-2', 'comp-3', 'district-demo-booklet', 'corp-alp', 'corp-bet', 'district'];
+      return (prev || []).filter(b => !mockIds.includes(b.id));
+    });
   }, [setBooklets]);
   
   // Auth state with 5 official pre-configured Toastmasters Officer Users
@@ -150,13 +164,20 @@ export function BookletProvider({ children }) {
     setActivities(prev => [newAct, ...prev.slice(0, 19)]); // Cap at 20 items
   }, [setActivities]);
 
-  // Auth functions
+  // Auth functions with Password Validation & Change Password
   const loginUser = (username, password) => {
     const searchKey = (username || '').toLowerCase().trim();
     
-    let loggedInUser;
-    if (searchKey === 'admin') {
-      loggedInUser = {
+    if (!password) {
+      showToast("Please enter your password", "warning");
+      return { success: false, error: 'Password is required.' };
+    }
+
+    let targetUser = users.find(u => u.username.toLowerCase() === searchKey);
+    
+    // Check preset admin fallback
+    if (!targetUser && searchKey === 'admin') {
+      targetUser = {
         username: 'admin',
         password: 'password',
         name: 'System Administrator',
@@ -165,12 +186,20 @@ export function BookletProvider({ children }) {
         division: 'Div A / Area 01',
         district: 'Toastmasters International'
       };
+    }
+
+    if (targetUser) {
+      // Validate password match
+      if (targetUser.password && targetUser.password !== password) {
+        showToast("Invalid password. Please check your password.", "error");
+        return { success: false, error: 'Invalid password. Please check your password.' };
+      }
     } else {
-      const foundUser = users.find(u => u.username.toLowerCase() === searchKey);
-      loggedInUser = foundUser || {
+      // Auto-register fallback for new username
+      targetUser = {
         username: searchKey || 'officer',
         password: password || 'password',
-        name: username || 'Toastmasters Officer',
+        name: username || 'Toastmasters Leader',
         email: `${searchKey || 'officer'}@toastmasters.org`,
         role: 'Toastmasters Leader',
         division: 'Div A / Area 01',
@@ -178,10 +207,16 @@ export function BookletProvider({ children }) {
       };
     }
 
-    setCurrentUser(loggedInUser);
-    showToast(`Welcome, ${loggedInUser.name} (${loggedInUser.role})!`, "success");
-    addActivity(`Logged in as ${loggedInUser.name} (${loggedInUser.role})`);
-    return { success: true, user: loggedInUser };
+    setCurrentUser(targetUser);
+    
+    // Fire API login to backend server
+    api.login(username, password).catch(err => {
+      console.warn('[API Auth Login]', err.message);
+    });
+
+    showToast(`Welcome back, ${targetUser.name}!`, "success");
+    addActivity(`Logged in as ${targetUser.name} (${targetUser.role})`);
+    return { success: true, user: targetUser };
   };
 
   const registerUser = (userData) => {
@@ -205,9 +240,43 @@ export function BookletProvider({ children }) {
 
     setUsers(prev => [...prev, newUser]);
     setCurrentUser(newUser);
+
+    // Fire API register to backend
+    api.register(newUser).catch(err => {
+      console.warn('[API Auth Register]', err.message);
+    });
+
     showToast(`Registered and logged in as ${newUser.name}!`, "success");
     addActivity(`Registered and logged in as ${newUser.name}`);
     return { success: true, user: newUser };
+  };
+
+  const changeUserPassword = async (currentPassword, newPassword) => {
+    if (!currentUser) return { success: false, error: 'No user is currently logged in' };
+    
+    if (currentUser.password && currentUser.password !== currentPassword) {
+      showToast("Current password is incorrect.", "error");
+      return { success: false, error: 'Current password is incorrect' };
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      showToast("New password must be at least 6 characters long.", "warning");
+      return { success: false, error: 'New password must be at least 6 characters long' };
+    }
+
+    const updatedUser = { ...currentUser, password: newPassword };
+    setCurrentUser(updatedUser);
+    setUsers(prev => prev.map(u => u.username === updatedUser.username ? updatedUser : u));
+
+    try {
+      await api.changePassword(currentPassword, newPassword);
+    } catch (err) {
+      console.warn('[API Change Password]', err.message);
+    }
+
+    showToast("Password updated successfully!", "success");
+    addActivity(`Changed account password for ${currentUser.name}`);
+    return { success: true };
   };
 
   const logoutUser = () => {
@@ -452,6 +521,7 @@ export function BookletProvider({ children }) {
         registerUser,
         logoutUser,
         updateUserProfile,
+        changeUserPassword,
         canUndo: pastStates.length > 0,
         canRedo: futureStates.length > 0,
         undo,
@@ -465,7 +535,12 @@ export function BookletProvider({ children }) {
         markNotificationsAsRead,
         activities,
         backendStatus,
-        backendUrl: api.baseUrl
+        backendUrl: api.baseUrl,
+        isMobileSidebarOpen,
+        setIsMobileSidebarOpen,
+        openMobileSidebar: () => setIsMobileSidebarOpen(true),
+        closeMobileSidebar: () => setIsMobileSidebarOpen(false),
+        toggleMobileSidebar: () => setIsMobileSidebarOpen(prev => !prev)
       }}
     >
       {children}

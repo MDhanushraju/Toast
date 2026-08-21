@@ -12,7 +12,11 @@ import {
 import { AREA_DIRECTORS, DIVISION_DIRECTORS, DIVISION_AREA_OPTIONS } from '../../constants/contactsData';
 
 export default function Sidebar() {
-  const { activeBooklet, createBooklet, currentUser, logoutUser, hasCreatedDemoMeeting, unlockDemoMeeting } = useBooklet();
+  const { 
+    activeBooklet, createBooklet, currentUser, logoutUser, 
+    hasCreatedDemoMeeting, unlockDemoMeeting,
+    isMobileSidebarOpen, closeMobileSidebar 
+  } = useBooklet();
   const navigate = useNavigate();
   const location = useLocation();
   const [showNewBookletModal, setShowNewBookletModal] = useState(false);
@@ -123,99 +127,133 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-full lg:w-[20%] bg-[#1C4E6F] text-white flex flex-col justify-between shrink-0 lg:fixed lg:top-0 lg:bottom-0 lg:left-0 z-40 shadow-xl no-print border-r border-[#153D57] font-sans">
-      
-      {/* Top Sidebar Header */}
-      <div className="p-4 flex flex-col gap-4 border-b border-white/15">
-        <div className="flex justify-center">
-          <ToastmastersLogo 
-            district="District 227" 
-            subtitle="CLUB GROWTH DASHBOARD" 
-            textColor="text-white"
-            size="lg"
-            className="justify-center" 
-          />
+    <>
+      {/* Mobile Dark Backdrop Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          onClick={closeMobileSidebar}
+          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity animate-fadeIn no-print"
+        />
+      )}
+
+      {/* Slide-in Mobile Drawer & Fixed Desktop Sidebar */}
+      <aside className={`fixed top-0 bottom-0 left-0 z-50 w-80 lg:w-80 bg-[#1C4E6F] text-white flex flex-col justify-between shrink-0 shadow-2xl no-print border-r border-[#153D57] font-sans transition-transform duration-300 ease-in-out ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        
+        {/* Top Sidebar Header with Mobile Close Button */}
+        <div className="p-4 sm:p-5 flex flex-col gap-5 border-b border-white/15">
+          <div className="flex items-center justify-between">
+            <ToastmastersLogo 
+              district="District 227" 
+              subtitle="CLUB GROWTH DASHBOARD" 
+              textColor="text-white"
+              size="lg"
+              className="justify-center" 
+            />
+            <button
+              onClick={closeMobileSidebar}
+              className="lg:hidden p-2.5 text-white/80 hover:text-white rounded-2xl bg-white/10 hover:bg-white/20 transition-all cursor-pointer"
+              title="Close Menu"
+            >
+              <FiX size={26} />
+            </button>
+          </div>
+
+          <div>
+            <button 
+              onClick={() => {
+                closeMobileSidebar();
+                handleOpenNewModal();
+              }}
+              className="w-full py-3.5 px-4 lg:py-4 lg:px-5 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-sm sm:text-base lg:text-lg rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-lg cursor-pointer font-montserrat uppercase tracking-wider hover:scale-[1.01]"
+            >
+              <FiPlus size={22} /> Create New Meeting
+            </button>
+          </div>
         </div>
 
-        <div>
-          <button 
-            onClick={handleOpenNewModal}
-            className="w-full py-4 px-3.5 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-[18px] rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md cursor-pointer font-montserrat uppercase tracking-wider"
+        {/* Main Navigation List — Takes full height with generous spacing */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-6 lg:space-y-7 flex flex-col justify-start">
+          <div className="space-y-2">
+            <NavLink 
+              to="/" 
+              end 
+              onClick={closeMobileSidebar}
+              className={({ isActive }) => `flex items-center gap-3.5 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl text-sm sm:text-base lg:text-lg font-extrabold transition-all font-montserrat ${isActive ? 'bg-white/20 text-white shadow-lg border-l-4 border-white' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}
+            >
+              <FiHome size={22} className="shrink-0 text-white lg:w-6 lg:h-6" />
+              <span className="flex-1 text-left text-white font-extrabold truncate">Home Dashboard</span>
+            </NavLink>
+          </div>
+
+          {(() => {
+            const isSuperAdmin = currentUser?.username === 'admin' || currentUser?.role === 'District Main Administrator';
+            const hasActiveBooklet = Boolean(activeBooklet && activeBooklet.status !== 'completed');
+            const isUnlocked = hasActiveBooklet;
+            return (
+              <div className="space-y-3 pt-4 border-t border-white/15">
+                <div className="flex items-center justify-between px-2 font-montserrat text-left">
+                  <span className="text-xs lg:text-sm font-black text-white/80 uppercase tracking-widest">MEETING SEGMENTS</span>
+                  {isSuperAdmin ? <span className="text-xs font-black text-emerald-300 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/40">ADMIN ACCESS</span> : !isUnlocked ? <span className="text-xs font-black text-amber-300 bg-black/40 px-2.5 py-1 rounded-full flex items-center gap-1"><FiLock size={14} /> LOCKED</span> : null}
+                </div>
+                {!isUnlocked ? (
+                  <div className="p-4 bg-black/20 rounded-2xl border border-white/10 text-center text-xs sm:text-sm text-white/80 font-bold font-montserrat leading-relaxed">
+                    Select or create a meeting to unlock segments.
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-1">
+                    {navItems.map((item) => {
+                      const Icon = item.icon;
+                      const status = getSegmentStatus(item.id);
+                      let statusBadgeBg = status === 'green' ? 'bg-emerald-400 animate-pulse' : status === 'yellow' ? 'bg-amber-400' : 'bg-rose-500';
+                      return (
+                        <NavLink 
+                          key={item.path} 
+                          to={item.path} 
+                          onClick={closeMobileSidebar}
+                          className={({ isActive }) => `flex items-center justify-between gap-3 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl transition-all font-montserrat text-sm sm:text-base lg:text-lg font-extrabold ${isActive ? 'bg-white/20 text-white shadow-lg border-l-4 border-white' : 'text-white/90 hover:bg-white/10'}`}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0 flex-1"><Icon size={22} className="text-white shrink-0 lg:w-6 lg:h-6" /> <span className="truncate">{item.name}</span></div>
+                          <div className={`w-4 h-4 rounded-full border-2 ${statusBadgeBg} shrink-0`} />
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          <div className="space-y-2 pt-4 border-t border-white/15">
+            <div className="text-xs lg:text-sm font-black text-white/80 uppercase tracking-widest px-2 pb-1.5 font-montserrat text-left">OVERVIEW & DIRECTORY</div>
+            <NavLink to="/current-meetings" onClick={closeMobileSidebar} className={({ isActive }) => `flex items-center gap-3.5 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl text-sm sm:text-base lg:text-lg font-extrabold transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
+              <FiZap size={22} className="text-white shrink-0 lg:w-6 lg:h-6" /> <span className="truncate">Current Meetings</span>
+            </NavLink>
+            <NavLink to="/upcoming-meetings" onClick={closeMobileSidebar} className={({ isActive }) => `flex items-center gap-3.5 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl text-sm sm:text-base lg:text-lg font-extrabold transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
+              <FiClock size={22} className="text-white shrink-0 lg:w-6 lg:h-6" /> <span className="truncate">Upcoming Meetings</span>
+            </NavLink>
+            <NavLink to="/meeting-history" onClick={closeMobileSidebar} className={({ isActive }) => `flex items-center gap-3.5 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl text-sm sm:text-base lg:text-lg font-extrabold transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
+              <FiArchive size={22} className="text-white shrink-0 lg:w-6 lg:h-6" /> <span className="truncate">Meeting History</span>
+            </NavLink>
+            <NavLink to="/contacts" onClick={closeMobileSidebar} className={({ isActive }) => `flex items-center gap-3.5 px-4 py-3 lg:py-3.5 lg:px-4.5 rounded-2xl text-sm sm:text-base lg:text-lg font-extrabold transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
+              <FiUsers size={22} className="text-white shrink-0 lg:w-6 lg:h-6" /> <span className="truncate">District 227 Contacts</span>
+            </NavLink>
+          </div>
+        </div>
+
+        {/* Bottom Footer — ONLY Log Out Button */}
+        <div className="p-4 lg:p-5 border-t border-white/15 font-sans">
+          <button
+            onClick={() => {
+              closeMobileSidebar();
+              logoutUser();
+            }}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 lg:py-4 lg:px-5 rounded-2xl bg-rose-900/40 hover:bg-rose-900/90 text-white font-black text-sm sm:text-base lg:text-lg transition-all cursor-pointer border border-rose-500/40 shadow-md font-montserrat hover:scale-[1.01]"
           >
-            <FiPlus size={24} /> Create New Demo Meeting
+            <FiLogOut size={22} className="shrink-0 text-white lg:w-6 lg:h-6" />
+            <span>Log Out</span>
           </button>
         </div>
-      </div>
-
-      {/* Main Navigation List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div className="space-y-2">
-          <NavLink to="/" end className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[20px] font-black transition-all font-montserrat ${isActive ? 'bg-white/20 text-white shadow-md border-l-4 border-white' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>
-            <FiHome size={26} className="shrink-0 text-white" />
-            <span className="flex-1 text-left text-white font-black text-[20px]">Home Dashboard</span>
-          </NavLink>
-        </div>
-
-        {(() => {
-          const isSuperAdmin = currentUser?.username === 'admin' || currentUser?.role === 'District Main Administrator';
-          const hasActiveBooklet = Boolean(activeBooklet && activeBooklet.status !== 'completed');
-          const isUnlocked = hasActiveBooklet;
-          return (
-            <div className="space-y-3 pt-4.5 border-t border-white/15">
-              <div className="flex items-center justify-between px-2 font-montserrat text-left">
-                <span className="text-[15px] font-black text-white/80 uppercase tracking-wider">MEETING SEGMENTS</span>
-                {isSuperAdmin ? <span className="text-[13px] font-black text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">ADMIN ACCESS</span> : !isUnlocked ? <span className="text-[13px] font-black text-amber-300 bg-black/40 px-3 py-1 rounded-full flex items-center gap-1"><FiLock size={14} /> LOCKED</span> : null}
-              </div>
-              {!isUnlocked ? (
-                <div className="p-4 bg-black/20 rounded-2xl border border-white/10 text-center text-[14px] text-white/80 font-bold font-montserrat">
-                  Meeting segments hidden until demo created.
-                </div>
-              ) : (
-                <div className="space-y-2 pt-0.5">
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const status = getSegmentStatus(item.id);
-                    let statusBadgeBg = status === 'green' ? 'bg-emerald-400 animate-pulse' : status === 'yellow' ? 'bg-amber-400' : 'bg-rose-500';
-                    return (
-                      <NavLink key={item.path} to={item.path} className={({ isActive }) => `flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition-all font-montserrat text-[20px] font-black ${isActive ? 'bg-white/20 text-white shadow-md border-l-4 border-white' : 'text-white/90 hover:bg-white/10'}`}>
-                        <div className="flex items-center gap-4 min-w-0 flex-1"><Icon size={26} className="text-white" /> <span className="truncate">{item.name}</span></div>
-                        <div className={`w-4.5 h-4.5 rounded-full border-2 ${statusBadgeBg}`} />
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        <div className="space-y-2 pt-4.5 border-t border-white/15">
-          <div className="text-[15px] font-black text-white/80 uppercase tracking-wider px-2 pb-1 font-montserrat text-left">OVERVIEW & DIRECTORY</div>
-          <NavLink to="/current-meetings" className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[20px] font-black transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
-            <FiZap size={26} className="text-white" /> <span className="text-[20px]">Current Meetings</span>
-          </NavLink>
-          <NavLink to="/upcoming-meetings" className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[20px] font-black transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
-            <FiClock size={26} className="text-white" /> <span className="text-[20px]">Upcoming Meetings</span>
-          </NavLink>
-          <NavLink to="/meeting-history" className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[20px] font-black transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
-            <FiArchive size={26} className="text-white" /> <span className="text-[20px]">Meeting History</span>
-          </NavLink>
-          <NavLink to="/contacts" className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[20px] font-black transition-all ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`}>
-            <FiUsers size={26} className="text-white" /> <span className="text-[20px]">District 227 Contacts</span>
-          </NavLink>
-        </div>
-      </div>
-
-      {/* Bottom Footer — ONLY Log Out Button */}
-      <div className="p-4 border-t border-white/15 font-sans">
-        <button
-          onClick={logoutUser}
-          className="w-full flex items-center justify-center gap-3.5 px-4 py-3.5 rounded-2xl bg-rose-900/40 hover:bg-rose-900/90 text-white font-black text-[18px] transition-all cursor-pointer border border-rose-500/40 shadow-sm font-montserrat"
-        >
-          <FiLogOut size={24} className="shrink-0 text-white" />
-          <span>Log Out</span>
-        </button>
-      </div>
+      </aside>
 
       {showNewBookletModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 no-print overflow-y-auto">
@@ -227,7 +265,7 @@ export default function Sidebar() {
                   District 227 Toastmasters Setup
                 </span>
                 <h3 className="text-3xl sm:text-4xl font-montserrat font-black text-[#006094] dark:text-white mt-1">
-                  Create New Demo Meeting
+                  Create New Toastmasters Meeting
                 </h3>
               </div>
               <button
@@ -397,7 +435,6 @@ export default function Sidebar() {
           </div>
         </div>
       )}
-
-    </aside>
+    </>
   );
 }

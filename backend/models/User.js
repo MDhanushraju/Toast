@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -22,5 +23,23 @@ const userSchema = new mongoose.Schema({
   twoFactorEnabled: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
+
+// Automatic bcrypt hashing before saving user
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  if (!this.password.startsWith('$2a$') && !this.password.startsWith('$2b$')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
+
+// Instance method to compare password with bcrypt hash
+userSchema.methods.matchPassword = async function(enteredPassword) {
+  if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$')) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  }
+  return this.password === enteredPassword;
+};
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);

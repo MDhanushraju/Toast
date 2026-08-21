@@ -151,7 +151,7 @@ export default function Dashboard() {
             className="bg-[#781327] hover:bg-[#580d1b] text-white font-black border-0 shadow-md cursor-pointer font-montserrat flex items-center gap-2 text-sm sm:text-base px-4 py-2.5"
             onClick={() => setShowCreateModal(true)}
           >
-            <FiPlus size={18} /> Create New Demo Meeting
+            <FiPlus size={18} /> Create New Meeting
           </Button>
           <button
             onClick={exportBookletsJSON}

@@ -67,6 +67,13 @@ export const api = {
     });
   },
 
+  async changePassword(currentPassword, newPassword) {
+    return fetchAPI('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+
   // Booklet endpoints
   async getBooklets() {
     return fetchAPI('/booklets');

@@ -158,7 +158,7 @@ export default function TimerConsole() {
 
           {/* Stopwatch Controls */}
           <div className="bg-white dark:bg-[#121e2d] border border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button
                 variant="primary"
                 size="lg"

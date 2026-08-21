@@ -232,6 +232,4 @@ export const createCleanBooklet = (id, title = "Meeting Booklet", initialData = 
   };
 };
 
-export const getInitialBooklets = () => {
-  return [];
-};
+export const getInitialBooklets = () => [];
