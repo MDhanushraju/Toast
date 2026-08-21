@@ -236,69 +236,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* 100% Fully Working & Live Security Status Card */}
-          <div className="bg-white dark:bg-[#121e2d] border-2 border-[#e8ddd0] dark:border-slate-800 rounded-3xl p-8 shadow-md space-y-6 flex-1">
-            <div className="flex items-center justify-between border-b-2 border-[#e8ddd0] dark:border-slate-800 pb-4">
-              <h3 className="font-montserrat font-black text-2xl sm:text-3xl text-[#006094] dark:text-sky-300 flex items-center gap-3">
-                <FiShield size={32} className="text-[#781327]" /> Security Status
-              </h3>
-              <button
-                type="button"
-                onClick={() => navigate('/security')}
-                className="text-sm font-black text-[#006094] hover:text-[#004165] flex items-center gap-1 font-montserrat cursor-pointer hover:underline"
-              >
-                Manage Security <FiArrowRight size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-4 font-montserrat">
-              
-              {/* 2FA Live Status & Interactive Toggle */}
-              <div className="flex items-center justify-between text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <FiSmartphone size={22} className="text-[#006094]" />
-                  <span>Two-Factor Auth (2FA)</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleToggle2FA}
-                  className={`px-5 py-1.5 rounded-full font-black text-sm cursor-pointer transition-all shadow-xs flex items-center gap-1.5 ${
-                    twoFactorEnabled 
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-400 hover:bg-emerald-200' 
-                      : 'bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200'
-                  }`}
-                  title="Click to toggle 2FA status"
-                >
-                  <span className={`w-2.5 h-2.5 rounded-full ${twoFactorEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                  {twoFactorEnabled ? 'ENABLED' : 'DISABLED'}
-                </button>
-              </div>
-
-              {/* Account Status */}
-              <div className="flex items-center justify-between text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <FiCheckSquare size={22} className="text-emerald-600" />
-                  <span>Account Status</span>
-                </div>
-                <span className="text-emerald-600 dark:text-emerald-400 font-black bg-emerald-100 px-5 py-1 rounded-full text-sm border border-emerald-300">
-                  VERIFIED
-                </span>
-              </div>
-
-              {/* Dynamic Last Login */}
-              <div className="flex items-center justify-between text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">
-                <div className="flex items-center gap-2">
-                  <FiClock size={22} className="text-slate-500" />
-                  <span>Last System Login</span>
-                </div>
-                <span className="text-slate-600 dark:text-slate-400 font-extrabold text-sm sm:text-base">
-                  {lastLoginTime}
-                </span>
-              </div>
-
-            </div>
-          </div>
-
         </div>
 
         {/* Right Column: Editable Personal Details (50% Width) */}
