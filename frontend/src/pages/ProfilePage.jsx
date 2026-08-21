@@ -2,19 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useBooklet } from '../context/BookletContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button';
+import UserAvatar from '../components/ui/UserAvatar';
 import { 
   FiUser, FiMail, FiPhone, FiMapPin, FiAward, FiShield, 
   FiEdit3, FiSave, FiCheckCircle, FiCheck, FiBriefcase, FiGlobe,
-  FiLock, FiClock, FiSmartphone, FiArrowRight, FiCheckSquare
+  FiLock, FiClock, FiSmartphone, FiArrowRight, FiCheckSquare,
+  FiCamera, FiSmile, FiImage, FiX, FiUploadCloud, FiTrash2
 } from 'react-icons/fi';
 
+const PRESET_EMOJIS = [
+  '🏆', '🎙️', '👑', '🚀', '⭐', '💼', '👔', '🎯', 
+  '🔥', '🌟', '👨‍💼', '👩‍💼', '🦁', '🦅', '☕', '🏅', 
+  '✨', '🎓', '🌐', '💡', '💬', '🎉', '🛡️', '⚡'
+];
+
 export default function ProfilePage() {
-  const { currentUser } = useBooklet();
+  const { currentUser, updateUserProfile } = useBooklet();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+
+  // Avatar state
+  const [avatarType, setAvatarType] = useState(currentUser?.avatarType || (currentUser?.avatarPhoto ? 'photo' : currentUser?.avatarEmoji ? 'emoji' : 'initial'));
+  const [avatarPhoto, setAvatarPhoto] = useState(currentUser?.avatarPhoto || null);
+  const [avatarEmoji, setAvatarEmoji] = useState(currentUser?.avatarEmoji || '🏆');
+
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(() => {
     return localStorage.getItem('d227_2fa_enabled') !== 'false';
   });
@@ -40,6 +54,22 @@ export default function ProfilePage() {
     bio: 'Dedicated Toastmasters leader focused on club growth, quality meeting execution, and digital operational efficiency.'
   });
 
+  // Keep form data in sync when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name || prev.name,
+        email: currentUser.email || prev.email,
+        role: currentUser.role || prev.role,
+        district: currentUser.district || prev.district
+      }));
+      setAvatarType(currentUser.avatarType || (currentUser.avatarPhoto ? 'photo' : currentUser.avatarEmoji ? 'emoji' : 'initial'));
+      setAvatarPhoto(currentUser.avatarPhoto || null);
+      setAvatarEmoji(currentUser.avatarEmoji || '🏆');
+    }
+  }, [currentUser]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -48,13 +78,65 @@ export default function ProfilePage() {
   const handleSave = (e) => {
     e.preventDefault();
     setIsEditing(false);
-    addToast('Profile updated successfully!', 'success');
+
+    // Save profile to context & localStorage
+    if (updateUserProfile) {
+      updateUserProfile({
+        ...formData,
+        avatarType,
+        avatarPhoto,
+        avatarEmoji
+      });
+    } else {
+      addToast('Profile updated successfully!', 'success');
+    }
+  };
+
+  // Handle Photo Upload
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      addToast('Image size should be less than 5MB', 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPhoto(reader.result);
+      setAvatarType('photo');
+      addToast('Photo uploaded! Click "Save Avatar" to apply.', 'info');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveAvatar = () => {
+    setShowAvatarModal(false);
+    if (updateUserProfile) {
+      updateUserProfile({
+        avatarType,
+        avatarPhoto,
+        avatarEmoji
+      });
+    } else {
+      addToast('Avatar updated successfully!', 'success');
+    }
   };
 
   const handleToggle2FA = () => {
     const nextState = !twoFactorEnabled;
     setTwoFactorEnabled(nextState);
     addToast(`Two-Factor Authentication ${nextState ? 'enabled' : 'disabled'}!`, nextState ? 'success' : 'info');
+  };
+
+  // Preview user object for UserAvatar component
+  const tempUserPreview = {
+    ...currentUser,
+    name: formData.name,
+    avatarType,
+    avatarPhoto,
+    avatarEmoji
   };
 
   return (
@@ -65,8 +147,17 @@ export default function ProfilePage() {
         <div className="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8 text-center md:text-left">
           
-          <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white text-[#781327] font-black text-5xl sm:text-6xl flex items-center justify-center shadow-2xl border-4 border-white/40 shrink-0">
-            {formData.name.charAt(0).toUpperCase()}
+          {/* Avatar Container with Edit Badge */}
+          <div className="relative group shrink-0">
+            <UserAvatar user={tempUserPreview} size="2xl" />
+            <button
+              type="button"
+              onClick={() => setShowAvatarModal(true)}
+              className="absolute bottom-0 right-0 p-3 bg-[#781327] hover:bg-[#580d1b] text-white rounded-full shadow-2xl border-4 border-white cursor-pointer transition-transform group-hover:scale-110 flex items-center justify-center"
+              title="Change Profile Photo or Emoji"
+            >
+              <FiCamera size={22} />
+            </button>
           </div>
 
           <div className="space-y-3 flex-1">
@@ -88,13 +179,24 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="px-8 py-4 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-lg rounded-2xl flex items-center gap-3 transition-all shadow-xl cursor-pointer font-montserrat shrink-0 hover:scale-105"
-          >
-            {isEditing ? <FiCheck size={26} /> : <FiEdit3 size={26} />}
-            <span>{isEditing ? 'Viewing Mode' : 'Edit Profile'}</span>
-          </button>
+          <div className="flex flex-col gap-3 shrink-0">
+            <button
+              onClick={() => setShowAvatarModal(true)}
+              className="px-6 py-3.5 bg-white/15 hover:bg-white/25 text-white font-extrabold text-base rounded-2xl flex items-center gap-2 transition-all shadow-md cursor-pointer font-montserrat hover:scale-105 border border-white/30"
+            >
+              <FiCamera size={22} />
+              <span>Change Avatar</span>
+            </button>
+
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-8 py-4 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-lg rounded-2xl flex items-center gap-3 transition-all shadow-xl cursor-pointer font-montserrat hover:scale-105"
+            >
+              {isEditing ? <FiCheck size={26} /> : <FiEdit3 size={26} />}
+              <span>{isEditing ? 'Viewing Mode' : 'Edit Profile'}</span>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -322,6 +424,168 @@ export default function ProfilePage() {
         </div>
 
       </form>
+
+      {/* Interactive Avatar Customizer Modal */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#121e2d] border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 font-montserrat text-slate-900 dark:text-white">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-[#781327] text-white rounded-2xl">
+                  <FiCamera size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black">Customize Profile Avatar</h2>
+                  <p className="text-xs text-slate-500 font-bold">Choose a custom photo, emoji, or initial badge</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAvatarModal(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            {/* Live Avatar Preview Box */}
+            <div className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 space-y-3">
+              <UserAvatar user={tempUserPreview} size="xl" />
+              <div className="text-xs font-black uppercase tracking-wider text-slate-500">
+                Current Preview ({avatarType.toUpperCase()})
+              </div>
+            </div>
+
+            {/* Avatar Type Options Selector Tabs */}
+            <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl text-xs sm:text-sm font-black">
+              <button
+                type="button"
+                onClick={() => setAvatarType('photo')}
+                className={`py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                  avatarType === 'photo' ? 'bg-[#006094] text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                <FiImage size={18} /> Photo
+              </button>
+              <button
+                type="button"
+                onClick={() => setAvatarType('emoji')}
+                className={`py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                  avatarType === 'emoji' ? 'bg-[#006094] text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                <FiSmile size={18} /> Emoji
+              </button>
+              <button
+                type="button"
+                onClick={() => setAvatarType('initial')}
+                className={`py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                  avatarType === 'initial' ? 'bg-[#006094] text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                <FiUser size={18} /> Initial
+              </button>
+            </div>
+
+            {/* Tab 1: Photo Upload */}
+            {avatarType === 'photo' && (
+              <div className="space-y-4">
+                <label className="block p-6 border-2 border-dashed border-[#006094] hover:bg-sky-50 dark:hover:bg-slate-900 rounded-2xl text-center cursor-pointer transition-all">
+                  <FiUploadCloud size={36} className="mx-auto text-[#006094] mb-2" />
+                  <span className="font-black text-sm text-[#006094] block">Click to upload custom photo</span>
+                  <span className="text-xs text-slate-400 font-bold block mt-1">PNG, JPG, WEBP (Max 5MB)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {avatarPhoto && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarPhoto(null);
+                      setAvatarType('initial');
+                    }}
+                    className="w-full py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <FiTrash2 size={16} /> Remove Photo
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Tab 2: Preset Emoji Selector */}
+            {avatarType === 'emoji' && (
+              <div className="space-y-4">
+                <label className="block text-xs font-black uppercase text-slate-500">Pick an Emoji Avatar</label>
+                <div className="grid grid-cols-6 gap-2 max-h-44 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                  {PRESET_EMOJIS.map((e, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setAvatarEmoji(e);
+                        setAvatarType('emoji');
+                      }}
+                      className={`h-12 rounded-xl text-2xl flex items-center justify-center cursor-pointer transition-all ${
+                        avatarEmoji === e ? 'bg-amber-300 scale-110 shadow-md border-2 border-amber-500' : 'hover:bg-slate-200 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-500 mb-1">Or type custom emoji:</label>
+                  <input
+                    type="text"
+                    maxLength="4"
+                    value={avatarEmoji}
+                    onChange={(e) => {
+                      setAvatarEmoji(e.target.value);
+                      setAvatarType('emoji');
+                    }}
+                    placeholder="Enter emoji (e.g. 🦁)"
+                    className="w-full p-3 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-center text-xl font-bold"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Initial Badge Info */}
+            {avatarType === 'initial' && (
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl text-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                Displays the first letter of your name ("{formData.name.charAt(0).toUpperCase()}") inside the classic Toastmasters circle badge.
+              </div>
+            )}
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setShowAvatarModal(false)}
+                className="px-5 py-3 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-black text-sm rounded-xl hover:bg-slate-300 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAvatar}
+                className="px-6 py-3 bg-[#781327] hover:bg-[#580d1b] text-white font-black text-sm rounded-xl shadow-lg cursor-pointer flex items-center gap-2"
+              >
+                <FiCheck size={18} /> Save Avatar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

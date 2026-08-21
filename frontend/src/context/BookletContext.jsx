@@ -3,17 +3,37 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { createDefaultBooklet, createCleanBooklet, getInitialBooklets } from '../data/defaultBooklet';
 import { calculateBookletProgress } from '../utils/progress';
 import { useToast } from './ToastContext';
+import { api } from '../services/api';
 
 const BookletContext = createContext(null);
 
 export function BookletProvider({ children }) {
   const { showToast } = useToast();
   
+  // Render Backend Connectivity State
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking' | 'online' | 'offline'
+
   // Local storage state keys (Fresh clean slate with zero dummy booklets)
   const [booklets, setBooklets] = useLocalStorage('d227_booklets_v200', []);
   const [activeBookletId, setActiveBookletId] = useLocalStorage('d227_active_booklet_id_v200', null);
   const [hasCreatedDemoMeeting, setHasCreatedDemoMeeting] = useLocalStorage('d227_has_created_demo_v2', false);
   const [theme, setTheme] = useLocalStorage('d227_theme_v3', 'light');
+
+  // Check health of Render backend on startup
+  useEffect(() => {
+    api.checkHealth()
+      .then(res => {
+        if (res?.status === 'ONLINE') {
+          setBackendStatus('online');
+          console.log('[Backend] Deployed Render API connected:', api.baseUrl);
+        } else {
+          setBackendStatus('offline');
+        }
+      })
+      .catch(() => {
+        setBackendStatus('offline');
+      });
+  }, []);
 
   // Auto-purge any legacy dummy booklets stored in browser cache
   useEffect(() => {
@@ -196,6 +216,23 @@ export function BookletProvider({ children }) {
     }
     setCurrentUser(null);
     showToast("Logged out successfully", "info");
+  };
+
+  const updateUserProfile = (updatedFields) => {
+    if (!currentUser) return;
+    const mergedUser = { ...currentUser, ...updatedFields };
+    setCurrentUser(mergedUser);
+    
+    // Also update users array
+    setUsers(prev => prev.map(u => u.username === mergedUser.username ? mergedUser : u));
+
+    // Sync to MongoDB database via REST API
+    api.updateProfile(mergedUser).catch(err => {
+      console.warn('[Profile DB Sync] Saved locally, DB sync queued:', err.message);
+    });
+
+    showToast("Profile avatar & settings updated!", "success");
+    addActivity(`Updated profile picture / settings for ${mergedUser.name}`);
   };
 
   // Push state to undo history
@@ -414,6 +451,7 @@ export function BookletProvider({ children }) {
         loginUser,
         registerUser,
         logoutUser,
+        updateUserProfile,
         canUndo: pastStates.length > 0,
         canRedo: futureStates.length > 0,
         undo,
@@ -425,7 +463,9 @@ export function BookletProvider({ children }) {
         addNotification,
         clearNotifications,
         markNotificationsAsRead,
-        activities
+        activities,
+        backendStatus,
+        backendUrl: api.baseUrl
       }}
     >
       {children}

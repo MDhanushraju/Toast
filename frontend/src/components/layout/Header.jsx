@@ -6,10 +6,11 @@ import {
   FiSettings, FiLogOut, FiChevronDown, FiInfo 
 } from 'react-icons/fi';
 import ToastmastersLogo from '../ui/ToastmastersLogo';
+import UserAvatar from '../ui/UserAvatar';
 
 export default function Header() {
   const { 
-    activeBooklet, booklets, selectBooklet, currentUser, logoutUser
+    activeBooklet, booklets, selectBooklet, currentUser, logoutUser, backendStatus, backendUrl
   } = useBooklet();
 
   const location = useLocation();
@@ -54,8 +55,20 @@ export default function Header() {
     <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between min-h-[110px] py-5 px-8 md:px-12 bg-[#781327] text-white border-b-4 border-[#580d1b] shadow-2xl no-print font-sans transition-all gap-y-4">
       
       {/* Toastmasters Logo & District Brand Lockup - Larger Scale */}
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex flex-wrap items-center gap-4 min-w-0">
         <ToastmastersLogo district="District 227" subtitle="CLUB GROWTH DASHBOARD" size="lg" className="min-w-0" />
+        
+        {/* Render Live Backend Indicator */}
+        <a 
+          href={backendUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          title={`Backend Server: ${backendUrl}`}
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 border border-white/20 text-xs font-bold font-montserrat hover:bg-black/50 transition-all text-white/90"
+        >
+          <span className={`w-2.5 h-2.5 rounded-full ${backendStatus === 'online' ? 'bg-emerald-400 animate-pulse' : backendStatus === 'checking' ? 'bg-amber-400 animate-spin' : 'bg-rose-400'}`}></span>
+          <span>Render API: {backendStatus === 'online' ? 'Online' : backendStatus === 'checking' ? 'Connecting...' : 'Offline'}</span>
+        </a>
       </div>
 
       {/* Right Actions Toolbar & Top Right Profile Dropdown - Larger Scale */}
@@ -120,9 +133,7 @@ export default function Header() {
             onClick={() => setShowProfileDropdown(!showProfileDropdown)}
             className="flex items-center gap-4 px-4 py-2 rounded-2xl hover:bg-white/15 transition-all cursor-pointer group"
           >
-            <div className="w-14 h-14 rounded-full bg-white text-[#781327] font-black flex items-center justify-center text-2xl shrink-0 shadow-lg border-2 border-white/40 group-hover:scale-105 transition-transform">
-              {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'S'}
-            </div>
+            <UserAvatar user={currentUser} size="lg" className="group-hover:scale-105 transition-transform" />
 
             <div className="hidden sm:flex flex-col text-left leading-tight min-w-0">
               <div className="text-base sm:text-lg font-black text-white font-montserrat truncate">{currentUser?.name || 'System Administrator'}</div>
@@ -138,9 +149,7 @@ export default function Header() {
               
               {/* Profile Header inside Dropdown */}
               <div className="p-3.5 border-b border-white/20 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-white text-[#781327] font-black flex items-center justify-center text-2xl shrink-0 shadow-md">
-                  {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'S'}
-                </div>
+                <UserAvatar user={currentUser} size="md" />
                 <div className="truncate leading-tight">
                   <div className="font-black text-white text-lg truncate tracking-tight">{currentUser?.name || 'System Administrator'}</div>
                   <div className="text-xs text-emerald-400 font-extrabold uppercase tracking-wider flex items-center gap-2 mt-1">
